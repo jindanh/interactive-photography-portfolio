@@ -47,6 +47,3 @@ export const Connection = memo(function Connection({ edges, onEdgeHover, onEdgeC
     </g>
   );
 });
-
-// Re-exported for existing importers; implementation lives in utils/geometry.
-export { curvePath };

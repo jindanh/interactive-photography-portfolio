@@ -18,7 +18,7 @@ export interface VisualCanvasProps {
   onNodeHover?: (id: string | null, source?: 'keyboard') => void;
   /** Click/tap on empty canvas (not a node, edge, or the end of a drag). */
   onBackgroundClick?: () => void;
-  /** SVG content in world coordinates (edges, trail), drawn below the nodes. */
+  /** SVG content in world coordinates (edges, trail), drawn above dim nodes, below connected/focused ones (see the z-order rules in canvas.css). */
   connections?: ReactNode;
 }
 

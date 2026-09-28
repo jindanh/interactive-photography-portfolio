@@ -33,6 +33,8 @@ The detailed product/design specification is:
 
 docs/visual-threads-plan.md
 
+See docs/design-notes.md for architecture and decisions.
+
 ## Commands
 
 - `npm run dev` - start the dev server (site at localhost:5173, Photo Prep at localhost:5173/prep.html)
@@ -41,6 +43,8 @@ docs/visual-threads-plan.md
 - `npm run typecheck` - typecheck only
 
 ## Adding photos
+
+Use Chrome. (Safari may not be able to save WebP images, and Photo Prep will tell you if so.) iPhone HEIC photos aren't supported; export them as JPEG first (Photos → File → Export).
 
 0. The first time only: open Terminal in the project folder and run `npm install`.
 1. Run `npm run dev` and open http://localhost:5173/prep.html in your browser.
@@ -58,3 +62,14 @@ docs/visual-threads-plan.md
 Good to know:
 - When you add photos, the whole arrangement is recalculated, so existing photos may move and some connections may change. Photo ids and files stay the same.
 - Optional: to describe a photo for screen readers, edit `src/data/photos.json` and add a short `"alt": "..."` after that photo's `src`. It is never shown on screen, and Photo Prep keeps it when you re-export.
+
+## Removing a photo
+
+1. Open Photo Prep, click "Load existing photos.json" and pick `src/data/photos.json`.
+2. Click the × on the photo you want to remove.
+3. Download the zip and unzip it as usual (step 5 above).
+4. Delete the two image files for that photo in `public/photos/` (Photo Prep names them, e.g. `007-fern-sm.webp` and `007-fern-lg.webp`).
+
+## Publishing
+
+Run `npm run build`, then upload the `dist/` folder to any static host. For a sub-path (for example GitHub Pages at `/repo-name/`), set `base: '/repo-name/'` in `vite.config.ts` before building.
