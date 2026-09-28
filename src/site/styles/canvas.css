@@ -35,7 +35,7 @@
   will-change: transform;
 }
 
-/* Sits below the nodes, same world coordinates; Wave 2 fills it. */
+/* Edge/trail layer in world coordinates; stacking is set in the z-order rules below. */
 .connections {
   position: absolute;
   left: 0;
@@ -86,12 +86,17 @@
 .photo-node.is-focused {
   opacity: 1;
   scale: 1.03;
-  z-index: 2;
+  z-index: 2; /* z-order: dim nodes (auto) < edges (1) < connected (2) < hover/focused (2, later in DOM) */
   box-shadow: 0 6px 22px rgba(0, 0, 0, 0.1);
 }
 
 .photo-node.is-connected {
   opacity: 1;
+  z-index: 2;
+}
+
+.visual-canvas .connections {
+  z-index: 1;
 }
 
 /* Dimming relaxes as the view zooms out, so the landscape stays readable. */

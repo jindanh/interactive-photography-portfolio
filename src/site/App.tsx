@@ -9,6 +9,7 @@ import { computeEdges, computeNodeStates, computeTabbable, focusCycle, initialTh
 import type { EdgeRef } from './state/threadState';
 import { focusFrame } from './utils/focusFrame';
 import './styles/canvas.css';
+import './styles/abstraction.css';
 import './styles/intro.css';
 import './styles/threads.css';
 
@@ -242,6 +243,9 @@ export function App() {
       <div className={`thread-hint${introDone && !hintSeen ? ' is-visible' : ''}`} aria-hidden="true">
         Follow the visual thread.
       </div>
+      <p id="kbd-help" className="kbd-hint">
+        Tab: connected photos · Enter: follow · Esc: leave
+      </p>
     </>
   );
 }

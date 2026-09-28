@@ -2,7 +2,6 @@ import { memo, useState } from 'react';
 import type { Photo } from '../../types';
 import type { NodeState } from '../state/threadState';
 import { nodeSize } from '../utils/geometry';
-import '../styles/abstraction.css';
 
 export type { NodeState };
 
@@ -32,13 +31,15 @@ function PhotoNodeImpl({ photo, state, tabbable, current, onPointerEnter, onPoin
       className={`photo-node is-${state}`}
       data-id={photo.id}
       role="button"
+      aria-describedby="kbd-help"
       tabIndex={tabbable ? 0 : -1}
       aria-label={photo.alt ?? `Photograph ${parseInt(photo.id, 10)}`}
       aria-current={current ? 'true' : undefined}
       style={{
         width: w,
         height: h,
-        transform: `translate(${photo.x - w / 2}px, ${photo.y - h / 2}px)`,
+        // The individual `translate` property (not `transform`) so the hover `scale` can't scale the position.
+        translate: `${photo.x - w / 2}px ${photo.y - h / 2}px`,
         backgroundColor: photo.colors[0]?.hex,
       }}
       onPointerEnter={(e) => e.pointerType === 'mouse' && onPointerEnter(photo.id)}

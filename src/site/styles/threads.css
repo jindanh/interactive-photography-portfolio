@@ -1,12 +1,3 @@
-/* Z-order inside .world (a stacking context): dim nodes < edges < connected < hover/focused (2, canvas.css). */
-.visual-canvas .connections {
-  z-index: 1;
-}
-
-.photo-node.is-connected {
-  z-index: 2;
-}
-
 /* Only paths are styled here; opacity of svg.connections / .edges belongs to the zoom fade. */
 .connections .edge {
   stroke-width: calc(1.5px / var(--zoom, 1));
@@ -75,4 +66,25 @@
   .connections .edge {
     animation-duration: 200ms;
   }
+}
+
+/* Keyboard help for the focus cycle: in the accessibility tree always, visible only for keyboard focus. */
+.kbd-hint {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 24px;
+  margin: 0;
+  text-align: center;
+  font: 12.5px/1 var(--font);
+  letter-spacing: 0.14em;
+  color: var(--ink-muted);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 200ms ease;
+  z-index: 5;
+}
+
+body:has(.photo-node:focus-visible) .kbd-hint {
+  opacity: 1;
 }
