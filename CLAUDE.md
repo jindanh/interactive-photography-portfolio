@@ -43,7 +43,10 @@ docs/visual-threads-plan.md
 ## Adding photos
 
 1. Run `npm run dev` and open http://localhost:5173/prep.html in your browser.
-2. Drag your photos onto the page. Your original files stay on your computer; they are never added to the project.
-3. Check the layout preview, then click "Download all (.zip)".
-4. Unzip the file in the top-level project folder, and let it replace the files it asks about.
-5. Commit the changes (the new files in `public/photos/` and `src/data/`).
+2. Choose one:
+   - **Starting fresh** (e.g. replacing the placeholders): delete everything in `public/photos/` first.
+   - **Adding to your existing collection:** click "Load existing photos.json" and pick `src/data/photos.json`, so the photos already on the site are kept.
+3. Drag your photos onto the page. Your original files stay on your computer; they are never added to the project.
+4. Check the layout preview, then click "Download all (.zip)".
+5. Unzip the file in the top-level project folder, and let it replace the files it asks about.
+6. Commit the changes (the new files in `public/photos/` and `src/data/`).
