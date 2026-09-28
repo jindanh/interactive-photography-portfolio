@@ -50,8 +50,8 @@ docs/visual-threads-plan.md
 3. Drag your photos onto the page. Your original files stay on your computer; they are never added to the project.
 4. Check the layout preview, then click "Download all (.zip)".
 5. Open Terminal in the project folder and run this one command:
-   `unzip -o ~/Downloads/visual-threads-photos.zip`
-   (If your browser renamed the file, e.g. "visual-threads-photos (1).zip", use that name instead.)
+   `unzip -o ~/Downloads/"visual-threads-photos.zip"`
+   (If your browser renamed the file, e.g. "visual-threads-photos (1).zip", use that name instead, keeping the quotes.)
    **Do not drag the `public` and `src` folders into the project in Finder. That replaces the whole folder and deletes your existing photos.**
 6. Commit the changes (the new files in `public/photos/` and `src/data/`).
 
