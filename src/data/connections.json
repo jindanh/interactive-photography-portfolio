@@ -1,0 +1,98 @@
+[
+  {
+    "source": "001-dusk",
+    "target": "002-harbor",
+    "type": "color",
+    "strength": 0.92
+  },
+  {
+    "source": "001-dusk",
+    "target": "003-tide",
+    "type": "color",
+    "strength": 0.85
+  },
+  {
+    "source": "002-harbor",
+    "target": "003-tide",
+    "type": "color",
+    "strength": 0.88
+  },
+  {
+    "source": "002-harbor",
+    "target": "011-concrete",
+    "type": "color",
+    "strength": 0.4
+  },
+  {
+    "source": "004-lantern",
+    "target": "005-market",
+    "type": "color",
+    "strength": 0.9
+  },
+  {
+    "source": "004-lantern",
+    "target": "006-straw",
+    "type": "color",
+    "strength": 0.82
+  },
+  {
+    "source": "005-market",
+    "target": "006-straw",
+    "type": "color",
+    "strength": 0.78
+  },
+  {
+    "source": "005-market",
+    "target": "012-ember",
+    "type": "color",
+    "strength": 0.6
+  },
+  {
+    "source": "004-lantern",
+    "target": "012-ember",
+    "type": "color",
+    "strength": 0.55
+  },
+  {
+    "source": "007-fern",
+    "target": "008-moss",
+    "type": "color",
+    "strength": 0.9
+  },
+  {
+    "source": "007-fern",
+    "target": "009-canopy",
+    "type": "color",
+    "strength": 0.84
+  },
+  {
+    "source": "008-moss",
+    "target": "009-canopy",
+    "type": "color",
+    "strength": 0.8
+  },
+  {
+    "source": "008-moss",
+    "target": "010-fog",
+    "type": "color",
+    "strength": 0.35
+  },
+  {
+    "source": "010-fog",
+    "target": "011-concrete",
+    "type": "color",
+    "strength": 0.93
+  },
+  {
+    "source": "006-straw",
+    "target": "010-fog",
+    "type": "color",
+    "strength": 0.42
+  },
+  {
+    "source": "011-concrete",
+    "target": "007-fern",
+    "type": "color",
+    "strength": 0.3
+  }
+]

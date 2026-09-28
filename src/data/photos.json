@@ -1,0 +1,338 @@
+[
+  {
+    "id": "001-dusk",
+    "src": {
+      "sm": "/photos/001-dusk-sm.svg",
+      "lg": "/photos/001-dusk-lg.svg"
+    },
+    "width": 1600,
+    "height": 1000,
+    "aspect": 1.6,
+    "colors": [
+      {
+        "hex": "#2b4a7a",
+        "weight": 0.5
+      },
+      {
+        "hex": "#8fb3d9",
+        "weight": 0.3
+      },
+      {
+        "hex": "#1a2b4a",
+        "weight": 0.2
+      }
+    ],
+    "brightness": 0.35,
+    "saturation": 0.5,
+    "x": -1000,
+    "y": -500
+  },
+  {
+    "id": "002-harbor",
+    "src": {
+      "sm": "/photos/002-harbor-sm.svg",
+      "lg": "/photos/002-harbor-lg.svg"
+    },
+    "width": 1200,
+    "height": 1200,
+    "aspect": 1,
+    "colors": [
+      {
+        "hex": "#3a6ea5",
+        "weight": 0.5
+      },
+      {
+        "hex": "#dbe8f2",
+        "weight": 0.3
+      },
+      {
+        "hex": "#254a73",
+        "weight": 0.2
+      }
+    ],
+    "brightness": 0.5,
+    "saturation": 0.55,
+    "x": -700,
+    "y": -250
+  },
+  {
+    "id": "003-tide",
+    "src": {
+      "sm": "/photos/003-tide-sm.svg",
+      "lg": "/photos/003-tide-lg.svg"
+    },
+    "width": 1000,
+    "height": 1500,
+    "aspect": 0.6667,
+    "colors": [
+      {
+        "hex": "#1f5f8b",
+        "weight": 0.5
+      },
+      {
+        "hex": "#9ec9d8",
+        "weight": 0.3
+      },
+      {
+        "hex": "#123a56",
+        "weight": 0.2
+      }
+    ],
+    "brightness": 0.4,
+    "saturation": 0.6,
+    "x": -1100,
+    "y": -50
+  },
+  {
+    "id": "004-lantern",
+    "src": {
+      "sm": "/photos/004-lantern-sm.svg",
+      "lg": "/photos/004-lantern-lg.svg"
+    },
+    "width": 1500,
+    "height": 1000,
+    "aspect": 1.5,
+    "colors": [
+      {
+        "hex": "#e8a33d",
+        "weight": 0.5
+      },
+      {
+        "hex": "#f6d78b",
+        "weight": 0.3
+      },
+      {
+        "hex": "#a8641a",
+        "weight": 0.2
+      }
+    ],
+    "brightness": 0.7,
+    "saturation": 0.75,
+    "x": 700,
+    "y": -700
+  },
+  {
+    "id": "005-market",
+    "src": {
+      "sm": "/photos/005-market-sm.svg",
+      "lg": "/photos/005-market-lg.svg"
+    },
+    "width": 1000,
+    "height": 1300,
+    "aspect": 0.7692,
+    "colors": [
+      {
+        "hex": "#d9822b",
+        "weight": 0.5
+      },
+      {
+        "hex": "#f2c14e",
+        "weight": 0.3
+      },
+      {
+        "hex": "#8c4a12",
+        "weight": 0.2
+      }
+    ],
+    "brightness": 0.6,
+    "saturation": 0.8,
+    "x": 1000,
+    "y": -300
+  },
+  {
+    "id": "006-straw",
+    "src": {
+      "sm": "/photos/006-straw-sm.svg",
+      "lg": "/photos/006-straw-lg.svg"
+    },
+    "width": 1600,
+    "height": 1100,
+    "aspect": 1.4545,
+    "colors": [
+      {
+        "hex": "#e6c15a",
+        "weight": 0.5
+      },
+      {
+        "hex": "#f7e7a8",
+        "weight": 0.3
+      },
+      {
+        "hex": "#b08a2a",
+        "weight": 0.2
+      }
+    ],
+    "brightness": 0.8,
+    "saturation": 0.6,
+    "x": 450,
+    "y": -350
+  },
+  {
+    "id": "007-fern",
+    "src": {
+      "sm": "/photos/007-fern-sm.svg",
+      "lg": "/photos/007-fern-lg.svg"
+    },
+    "width": 1200,
+    "height": 900,
+    "aspect": 1.3333,
+    "colors": [
+      {
+        "hex": "#3f7a4a",
+        "weight": 0.5
+      },
+      {
+        "hex": "#a7c98b",
+        "weight": 0.3
+      },
+      {
+        "hex": "#254a2d",
+        "weight": 0.2
+      }
+    ],
+    "brightness": 0.45,
+    "saturation": 0.55,
+    "x": -300,
+    "y": 600
+  },
+  {
+    "id": "008-moss",
+    "src": {
+      "sm": "/photos/008-moss-sm.svg",
+      "lg": "/photos/008-moss-lg.svg"
+    },
+    "width": 1000,
+    "height": 1000,
+    "aspect": 1,
+    "colors": [
+      {
+        "hex": "#5b8a3c",
+        "weight": 0.5
+      },
+      {
+        "hex": "#c3d68a",
+        "weight": 0.3
+      },
+      {
+        "hex": "#33501f",
+        "weight": 0.2
+      }
+    ],
+    "brightness": 0.5,
+    "saturation": 0.6,
+    "x": 150,
+    "y": 850
+  },
+  {
+    "id": "009-canopy",
+    "src": {
+      "sm": "/photos/009-canopy-sm.svg",
+      "lg": "/photos/009-canopy-lg.svg"
+    },
+    "width": 900,
+    "height": 1400,
+    "aspect": 0.6429,
+    "colors": [
+      {
+        "hex": "#2f5d3a",
+        "weight": 0.5
+      },
+      {
+        "hex": "#7fae7a",
+        "weight": 0.3
+      },
+      {
+        "hex": "#1b3822",
+        "weight": 0.2
+      }
+    ],
+    "brightness": 0.3,
+    "saturation": 0.5,
+    "x": -650,
+    "y": 900
+  },
+  {
+    "id": "010-fog",
+    "src": {
+      "sm": "/photos/010-fog-sm.svg",
+      "lg": "/photos/010-fog-lg.svg"
+    },
+    "width": 1500,
+    "height": 1000,
+    "aspect": 1.5,
+    "colors": [
+      {
+        "hex": "#b9b5ab",
+        "weight": 0.5
+      },
+      {
+        "hex": "#e2dfd6",
+        "weight": 0.3
+      },
+      {
+        "hex": "#8a867d",
+        "weight": 0.2
+      }
+    ],
+    "brightness": 0.65,
+    "saturation": 0.08,
+    "x": 300,
+    "y": 150
+  },
+  {
+    "id": "011-concrete",
+    "src": {
+      "sm": "/photos/011-concrete-sm.svg",
+      "lg": "/photos/011-concrete-lg.svg"
+    },
+    "width": 1200,
+    "height": 1200,
+    "aspect": 1,
+    "colors": [
+      {
+        "hex": "#8d8b86",
+        "weight": 0.5
+      },
+      {
+        "hex": "#c9c6be",
+        "weight": 0.3
+      },
+      {
+        "hex": "#5f5d59",
+        "weight": 0.2
+      }
+    ],
+    "brightness": 0.5,
+    "saturation": 0.05,
+    "x": -150,
+    "y": -150
+  },
+  {
+    "id": "012-ember",
+    "src": {
+      "sm": "/photos/012-ember-sm.svg",
+      "lg": "/photos/012-ember-lg.svg"
+    },
+    "width": 1400,
+    "height": 1000,
+    "aspect": 1.4,
+    "colors": [
+      {
+        "hex": "#b8442f",
+        "weight": 0.5
+      },
+      {
+        "hex": "#e9a06a",
+        "weight": 0.3
+      },
+      {
+        "hex": "#5e1f14",
+        "weight": 0.2
+      }
+    ],
+    "brightness": 0.4,
+    "saturation": 0.7,
+    "x": 1100,
+    "y": 500
+  }
+]
