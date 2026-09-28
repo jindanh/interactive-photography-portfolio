@@ -55,7 +55,7 @@
     opacity var(--node-ease),
     scale var(--node-ease),
     box-shadow var(--node-ease);
-  cursor: inherit;
+  cursor: pointer;
 }
 
 .photo-node .face-photo,
@@ -94,8 +94,33 @@
   opacity: 1;
 }
 
+/* Dimming relaxes as the view zooms out, so the landscape stays readable. */
 .photo-node.is-dim {
-  opacity: var(--node-dim-opacity);
+  opacity: clamp(
+    var(--node-dim-opacity),
+    calc(var(--node-dim-opacity) + (0.9 - var(--zoom-rel, 1)) * 3.25),
+    var(--node-rest-opacity)
+  );
+}
+
+/* Hover prominence: while one node is hovered, resting nodes step back. Pure CSS. */
+.world:has(> .photo-node.is-hover) > .photo-node.is-default {
+  opacity: 0.6;
+}
+
+/* Keyboard focus ring, constant on-screen width. */
+.photo-node:focus {
+  outline: none;
+}
+.photo-node:focus-visible {
+  outline: calc(1.5px / var(--zoom, 1)) solid var(--ink);
+  outline-offset: calc(4px / var(--zoom, 1));
+}
+
+/* Full-resolution image fades in over the small one once loaded. */
+.photo-node img.face-lg {
+  position: absolute;
+  inset: 0;
 }
 
 @media (prefers-reduced-motion: reduce) {
