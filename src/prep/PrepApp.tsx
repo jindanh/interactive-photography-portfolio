@@ -1,11 +1,11 @@
-import { useCallback, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { Connection, Photo } from '../types';
 import { brightnessOf, extractPalette, saturationOf } from '../analysis/color';
 import { buildZip, serializeConnections, serializePhotos } from '../analysis/exportZip';
 import { nextId } from '../analysis/ids';
 import { computeLayout } from '../analysis/layout';
 import { generatePlaceholders } from '../analysis/placeholders';
-import { resizePhoto } from '../analysis/resize';
+import { canEncodeWebp, resizePhoto, WEBP_MSG } from '../analysis/resize';
 import { buildConnections, degrees, validateDataset, type PhotoBase } from '../analysis/similarity';
 import { DropZone } from './DropZone';
 import { LayoutPreview } from './LayoutPreview';
@@ -36,6 +36,10 @@ export function PrepApp() {
   const entriesRef = useRef<Entry[]>([]);
   const queue = useRef<Promise<void>>(Promise.resolve());
   const [k, setK] = useState(3);
+  const [webpOk, setWebpOk] = useState<boolean | null>(null);
+  useEffect(() => {
+    void canEncodeWebp().then(setWebpOk);
+  }, []);
   const [progress, setProgress] = useState<{ done: number; total: number } | null>(null);
   const [problems, setProblems] = useState<string[]>([]);
   const [selected, setSelected] = useState<string | null>(null);
@@ -189,6 +193,8 @@ export function PrepApp() {
       <h1>Photo Prep</h1>
       <p className="lede">Drop your photos here. Colors are analyzed on this computer. Nothing is uploaded.</p>
 
+      {webpOk === false && <p className="errors" role="alert">{WEBP_MSG}</p>}
+
       <DropZone onFiles={addFiles} disabled={busy} />
 
       <div className="row">
@@ -198,7 +204,6 @@ export function PrepApp() {
           <input
             type="file"
             accept=".json,application/json"
-            multiple
             hidden
             onChange={(e) => {
               loadExisting([...(e.target.files ?? [])]);
@@ -211,7 +216,7 @@ export function PrepApp() {
           <input type="range" min={2} max={5} step={1} value={k} onChange={(e) => setK(Number(e.target.value))} />
         </label>
       </div>
-      <p className="hint">Pick photos.json and connections.json together, or just photos.json.</p>
+      <p className="hint">Pick src/data/photos.json.</p>
 
       {progress && (
         <p className="progress" role="status">

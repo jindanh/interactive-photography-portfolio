@@ -2,6 +2,14 @@ export const SM_EDGE = 480;
 export const LG_EDGE = 1800;
 export const ANALYSIS_EDGE = 64;
 const WEBP_QUALITY = 0.82;
+export const WEBP_MSG = "This browser can't save WebP images — please use Chrome.";
+
+/** One-time 1x1 probe: Safari may silently return PNG for image/webp. */
+export function canEncodeWebp(): Promise<boolean> {
+  const c = document.createElement('canvas');
+  c.width = c.height = 1;
+  return new Promise((resolve) => c.toBlob((b) => resolve(b?.type === 'image/webp'), 'image/webp'));
+}
 
 export interface ResizeResult {
   sm: Blob;
@@ -27,7 +35,7 @@ function draw(bitmap: ImageBitmap, w: number, h: number): HTMLCanvasElement {
 function toWebp(canvas: HTMLCanvasElement): Promise<Blob> {
   return new Promise((resolve, reject) =>
     canvas.toBlob(
-      (b) => (b && b.type === 'image/webp' ? resolve(b) : reject(new Error('This browser cannot write webp images.'))),
+      (b) => (b && b.type === 'image/webp' ? resolve(b) : reject(new Error(WEBP_MSG))),
       'image/webp',
       WEBP_QUALITY,
     ),
