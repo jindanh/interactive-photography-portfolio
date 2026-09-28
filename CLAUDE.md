@@ -32,3 +32,18 @@ through visual properties rather than conventional semantic categories.
 The detailed product/design specification is:
 
 docs/visual-threads-plan.md
+
+## Commands
+
+- `npm run dev` - start the dev server (site at localhost:5173, Photo Prep at localhost:5173/prep.html)
+- `npm run build` - typecheck and build to `dist/`
+- `npm run preview` - serve the built site locally
+- `npm run typecheck` - typecheck only
+
+## Adding photos
+
+1. Run `npm run dev` and open http://localhost:5173/prep.html in your browser.
+2. Drag your photos onto the page. Your original files stay on your computer; they are never added to the project.
+3. Check the layout preview, then click "Download all (.zip)".
+4. Unzip the file in the top-level project folder, and let it replace the files it asks about.
+5. Commit the changes (the new files in `public/photos/` and `src/data/`).
