@@ -1,0 +1,69 @@
+/* Only paths are styled here; opacity of svg.connections / .edges belongs to the zoom fade. */
+.connections .edge {
+  stroke-width: calc(1.5px / var(--zoom, 1));
+  stroke-opacity: 0.55;
+  stroke-linecap: round;
+  /* Constant on-screen widths come from --zoom, not vector-effect: non-scaling-stroke ignores CSS
+     transforms on ancestors, and pathLength dashes then break too, so edges fade in. */
+  animation: edge-in 500ms cubic-bezier(0.22, 0.61, 0.36, 1) both;
+  transition: stroke-opacity 200ms ease; /* not stroke-width: it tracks --zoom every frame */
+  pointer-events: none;
+}
+
+.connections .edge.is-active {
+  stroke-width: calc(3px / var(--zoom, 1));
+  stroke-opacity: 1;
+}
+
+.connections .edge-hit {
+  stroke: transparent;
+  stroke-width: calc(14px / var(--zoom, 1));
+  pointer-events: stroke;
+  cursor: pointer;
+}
+
+.visual-canvas.is-dragging .connections .edge-hit {
+  pointer-events: none;
+}
+
+.connections .trail path {
+  stroke: var(--ink);
+  stroke-opacity: 0.25;
+  stroke-width: calc(1px / var(--zoom, 1));
+  stroke-linecap: round;
+  pointer-events: none;
+}
+
+@keyframes edge-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.thread-hint {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 28px;
+  text-align: center;
+  font: 12.5px/1 var(--font);
+  letter-spacing: 0.14em;
+  color: var(--ink-muted);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 900ms ease;
+  z-index: 5;
+}
+
+.thread-hint.is-visible {
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .connections .edge {
+    animation-duration: 200ms;
+  }
+}
