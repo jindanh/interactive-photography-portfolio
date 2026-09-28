@@ -1,6 +1,7 @@
 import { memo, useState } from 'react';
 import type { Photo } from '../../types';
 import { nodeSize } from '../utils/geometry';
+import '../styles/abstraction.css';
 
 export type NodeState = 'default' | 'hover' | 'focused' | 'connected' | 'dim';
 
@@ -43,7 +44,11 @@ function PhotoNodeImpl({ photo, state, onPointerEnter, onPointerLeave, onClick }
           onLoad={() => setLoaded(true)}
         />
       </div>
-      <div className="face-card" />
+      <div className={`face-card ${photo.aspect < 1 ? 'is-portrait' : 'is-landscape'}`} aria-hidden="true">
+        {photo.colors.map((c, i) => (
+          <i key={i} style={{ flexGrow: c.weight, backgroundColor: c.hex }} />
+        ))}
+      </div>
     </div>
   );
 }
