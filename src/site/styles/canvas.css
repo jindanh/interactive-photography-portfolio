@@ -14,6 +14,7 @@
   user-select: none;
   -webkit-user-select: none;
   --zoom: 1;
+  --zoom-rel: 1;
 }
 
 .visual-canvas.is-dragging {

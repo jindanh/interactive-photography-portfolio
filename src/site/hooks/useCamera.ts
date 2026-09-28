@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef } from 'react';
 import type { RefObject } from 'react';
 import { NODE_SIZE } from '../../types';
 import type { Camera } from '../../types';
-import { clamp, fitCamera } from '../utils/geometry';
+import { clamp, fitCamera, portraitFactor } from '../utils/geometry';
 import type { Bounds } from '../utils/geometry';
 import { tween } from '../utils/tween';
 import type { TweenHandle } from '../utils/tween';
@@ -25,6 +25,8 @@ export interface CameraApi {
     bounds?: Bounds,
     opts?: { animate?: boolean; duration?: number; scaleFactor?: number },
   ) => Promise<void>;
+  /** Scale that fitTo() with no args produces for the current viewport. */
+  getHomeScale: () => number;
 }
 
 interface Internals {
@@ -67,6 +69,16 @@ export function useCamera(
       return { min, max };
     };
 
+    let homeCache: { w: number; h: number; b: Bounds; v: number } | null = null;
+    const homeScale = () => {
+      const { w, h } = size.current;
+      const b = boundsRef.current;
+      if (!homeCache || homeCache.w !== w || homeCache.h !== h || homeCache.b !== b) {
+        homeCache = { w, h, b, v: fitCamera(b, w, h).scale * portraitFactor(b, w, h) };
+      }
+      return homeCache.v;
+    };
+
     const flush = () => {
       raf.current = 0;
       if (!dirty.current) return;
@@ -78,6 +90,7 @@ export function useCamera(
       const { w, h } = size.current;
       world.style.transform = `translate3d(${w / 2 - x * scale}px, ${h / 2 - y * scale}px, 0) scale(${scale})`;
       root.style.setProperty('--zoom', String(scale));
+      root.style.setProperty('--zoom-rel', String(scale / homeScale()));
     };
 
     const set = (c: Partial<Camera>) => {
@@ -91,12 +104,20 @@ export function useCamera(
       const { min, max } = limits();
       const scale = clamp(c.scale, min, max);
       const b = boundsRef.current;
-      const padX = (size.current.w * 0.3) / scale;
-      const padY = (size.current.h * 0.3) / scale;
+      const { w, h } = size.current;
+      const axis = (v: number, lo: number, hi: number, view: number) => {
+        if ((hi - lo) * scale <= view) {
+          // collection smaller than viewport: keep it fully on-screen
+          const half = view / (2 * scale);
+          return clamp(v, hi - half, lo + half);
+        }
+        const pad = (view * 0.3) / scale;
+        return clamp(v, lo - pad, hi + pad);
+      };
       return {
         scale,
-        x: clamp(c.x, b.minX - padX, b.maxX + padX),
-        y: clamp(c.y, b.minY - padY, b.maxY + padY),
+        x: axis(c.x, b.minX, b.maxX, w),
+        y: axis(c.y, b.minY, b.maxY, h),
       };
     };
 
@@ -128,8 +149,9 @@ export function useCamera(
     };
 
     const fitTo: CameraApi['fitTo'] = (b = boundsRef.current, opts = {}) => {
-      const f = fitCamera(b, size.current.w, size.current.h);
-      f.scale *= opts.scaleFactor ?? 1;
+      const { w, h } = size.current;
+      const f = fitCamera(b, w, h);
+      f.scale *= opts.scaleFactor ?? portraitFactor(b, w, h);
       if (opts.animate) {
         const g = gestures.current;
         return animateTo(f, { duration: opts.duration ?? 1400 }).then(() => {
@@ -152,7 +174,7 @@ export function useCamera(
       return { x: size.current.w / 2 + (wx - x) * scale, y: size.current.h / 2 + (wy - y) * scale };
     };
 
-    return { animateTo, getCamera: () => ({ ...cam.current }), setCamera: set, worldToScreen, screenToWorld, fitTo };
+    return { animateTo, getCamera: () => ({ ...cam.current }), setCamera: set, worldToScreen, screenToWorld, fitTo, getHomeScale: homeScale };
   }, [rootRef, worldRef]);
 
   useEffect(() => {
@@ -162,13 +184,23 @@ export function useCamera(
 
     const measure = () => {
       const r = root.getBoundingClientRect();
-      size.current = { w: r.width || 1, h: r.height || 1 };
+      const w = r.width || 1;
+      const h = r.height || 1;
+      const changed = w !== size.current.w || h !== size.current.h;
+      size.current = { w, h };
+      return changed;
     };
     measure();
     void api.fitTo();
+    let lastW = size.current.w;
+    let lastH = size.current.h;
 
     const ro = new ResizeObserver(() => {
       measure();
+      const { w, h } = size.current;
+      if (w === lastW && h === lastH) return;
+      lastW = w;
+      lastH = h;
       if (!interacted.current) void api.fitTo();
       else I.set({});
     });
@@ -210,9 +242,24 @@ export function useCamera(
       I.set(I.clampCam({ scale, x: before.x - (sx - w / 2) / scale, y: before.y - (sy - h / 2) / scale }));
     };
 
+    // Wheel mode is latched per gesture until 150 ms of silence.
+    let wheelMode: 'pan' | 'zoom' | null = null;
+    let wheelLast = 0;
     const onWheel = (e: WheelEvent) => {
       e.preventDefault();
       user();
+      const now = performance.now();
+      if (!wheelMode || now - wheelLast > 150) {
+        wheelMode =
+          e.ctrlKey ? 'zoom'
+          : e.deltaMode === 0 && (e.deltaX !== 0 || Math.abs(e.deltaY) < 40) ? 'pan'
+          : 'zoom';
+      }
+      wheelLast = now;
+      if (wheelMode === 'pan' && !e.ctrlKey) {
+        panBy(-e.deltaX, -e.deltaY);
+        return;
+      }
       const unit = e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? 400 : 1;
       const dy = clamp(e.deltaY * unit, -120, 120);
       const p = local(e);
@@ -231,6 +278,7 @@ export function useCamera(
       } else if (pointers.size === 2) {
         const [a, b] = [...pointers.values()];
         pinch = { dist: Math.hypot(a.x - b.x, a.y - b.y) };
+        I.cancelTween();
         moved = true;
         suppressClick = true;
         root.classList.add('is-dragging');
@@ -255,6 +303,7 @@ export function useCamera(
       if (!moved && Math.hypot(p.x - downAt.x, p.y - downAt.y) > CLICK_SLOP) {
         moved = true;
         suppressClick = true;
+        I.cancelTween();
         root.classList.add('is-dragging');
         try { root.setPointerCapture(e.pointerId); } catch { /* ignore */ }
       }
