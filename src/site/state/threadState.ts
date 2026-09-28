@@ -126,3 +126,19 @@ export function computeEdges(s: ThreadState): ActiveEdge[] {
   }
   return [...seen.values()];
 }
+
+/** Focus order while a node is focused: it, then its neighbors, strongest first. */
+export function focusCycle(focusedId: string): string[] {
+  return [focusedId, ...neighbors(focusedId).map((n) => n.photo.id)];
+}
+
+/**
+ * Tab stops, from focus only (never hover/keyboard-hover): everything when nothing is
+ * focused, otherwise just the focused node and its neighbors.
+ */
+export function computeTabbable(focusedId: string | null, allIds: readonly string[]): Record<string, boolean> {
+  const out: Record<string, boolean> = {};
+  const set = focusedId ? new Set(focusCycle(focusedId)) : null;
+  for (const id of allIds) out[id] = set ? set.has(id) : true;
+  return out;
+}

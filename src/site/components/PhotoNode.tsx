@@ -9,6 +9,10 @@ export type { NodeState };
 export interface PhotoNodeProps {
   photo: Photo;
   state: NodeState;
+  /** In the Tab order (computed from focus only, not hover). */
+  tabbable: boolean;
+  /** This is the focused photo (aria-current), regardless of hover. */
+  current: boolean;
   /** `keyboard` = focus-visible focus; it bypasses the app's hover lock. */
   onPointerEnter: (id: string, source?: 'keyboard') => void;
   onPointerLeave: (id: string, source?: 'keyboard') => void;
@@ -17,7 +21,7 @@ export interface PhotoNodeProps {
 
 const BASE = import.meta.env.BASE_URL;
 
-function PhotoNodeImpl({ photo, state, onPointerEnter, onPointerLeave, onClick }: PhotoNodeProps) {
+function PhotoNodeImpl({ photo, state, tabbable, current, onPointerEnter, onPointerLeave, onClick }: PhotoNodeProps) {
   const [loaded, setLoaded] = useState(false);
   const [lgWanted, setLgWanted] = useState(false);
   const [lgLoaded, setLgLoaded] = useState(false);
@@ -28,9 +32,9 @@ function PhotoNodeImpl({ photo, state, onPointerEnter, onPointerLeave, onClick }
       className={`photo-node is-${state}`}
       data-id={photo.id}
       role="button"
-      tabIndex={state === 'dim' ? -1 : 0}
+      tabIndex={tabbable ? 0 : -1}
       aria-label={photo.alt ?? `Photograph ${parseInt(photo.id, 10)}`}
-      aria-current={state === 'focused' ? 'true' : undefined}
+      aria-current={current ? 'true' : undefined}
       style={{
         width: w,
         height: h,

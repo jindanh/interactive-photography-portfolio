@@ -5,7 +5,7 @@ import { Intro } from './components/Intro';
 import { Connection } from './components/Connection';
 import { Trail } from './components/Trail';
 import type { CameraApi } from './hooks/useCamera';
-import { computeEdges, computeNodeStates, initialThreadState, threadReducer } from './state/threadState';
+import { computeEdges, computeNodeStates, computeTabbable, focusCycle, initialThreadState, threadReducer } from './state/threadState';
 import type { EdgeRef } from './state/threadState';
 import { focusFrame } from './utils/focusFrame';
 import './styles/canvas.css';
@@ -193,6 +193,19 @@ export function App() {
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Tab') {
+        // While a node is focused, Tab cycles [focused, ...neighbors by strength]. Elsewhere it is native.
+        const f = stateRef.current.focusedId;
+        const cur = (document.activeElement as HTMLElement | null)?.closest?.('.photo-node') as HTMLElement | null;
+        if (!f || !cur?.dataset.id) return;
+        const cycle = focusCycle(f);
+        const i = cycle.indexOf(cur.dataset.id);
+        if (i < 0) return;
+        e.preventDefault();
+        const next = cycle[(i + (e.shiftKey ? cycle.length - 1 : 1)) % cycle.length];
+        document.querySelector<HTMLElement>(`.photo-node[data-id="${next}"]`)?.focus();
+        return;
+      }
       if (e.key !== 'Escape') return;
       dispatch({ type: 'clear' });
       lock.current = lastPointer.current;
@@ -203,6 +216,7 @@ export function App() {
   }, []);
 
   const nodeStates = useMemo(() => computeNodeStates(state, ids), [state]);
+  const tabbable = useMemo(() => computeTabbable(state.focusedId, ids), [state.focusedId]);
   const edges = useMemo(() => computeEdges(state), [state]);
 
   const connections = (
@@ -217,6 +231,8 @@ export function App() {
       <VisualCanvas
         ref={camera}
         nodeStates={nodeStates}
+        tabbable={tabbable}
+        focusedId={state.focusedId}
         onNodeClick={onNodeClick}
         onNodeHover={onNodeHover}
         onBackgroundClick={onBackgroundClick}

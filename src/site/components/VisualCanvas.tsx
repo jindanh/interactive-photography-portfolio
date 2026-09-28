@@ -10,6 +10,10 @@ import type { NodeState } from './PhotoNode';
 export interface VisualCanvasProps {
   /** Per-node state, computed by the owner (memoized). */
   nodeStates?: Readonly<Record<string, NodeState>>;
+  /** Which nodes are in the Tab order (independent of visual state). */
+  tabbable?: Readonly<Record<string, boolean>>;
+  /** The focused photo id (drives aria-current). */
+  focusedId?: string | null;
   onNodeClick?: (id: string, pointerType: string) => void;
   onNodeHover?: (id: string | null, source?: 'keyboard') => void;
   /** Click/tap on empty canvas (not a node, edge, or the end of a drag). */
@@ -19,7 +23,7 @@ export interface VisualCanvasProps {
 }
 
 export const VisualCanvas = forwardRef<CameraApi, VisualCanvasProps>(function VisualCanvas(
-  { nodeStates, onNodeClick, onNodeHover, onBackgroundClick, connections },
+  { nodeStates, tabbable, focusedId, onNodeClick, onNodeHover, onBackgroundClick, connections },
   ref,
 ) {
   const rootRef = useRef<HTMLDivElement>(null);
@@ -84,6 +88,8 @@ export const VisualCanvas = forwardRef<CameraApi, VisualCanvasProps>(function Vi
             key={p.id}
             photo={p}
             state={nodeStates?.[p.id] ?? 'default'}
+            tabbable={tabbable ? tabbable[p.id] === true : true}
+            current={focusedId === p.id}
             onPointerEnter={onEnter}
             onPointerLeave={onLeave}
             onClick={onClick}
