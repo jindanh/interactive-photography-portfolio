@@ -1,4 +1,5 @@
 :root {
+  color-scheme: light dark;
   --bg: #F3F0E8;
   --ink: #1c1b19;
   --ink-muted: rgba(28, 27, 25, 0.55);

@@ -2,8 +2,8 @@
   {
     "id": "001-dusk",
     "src": {
-      "sm": "/photos/001-dusk-sm.svg",
-      "lg": "/photos/001-dusk-lg.svg"
+      "sm": "photos/001-dusk-sm.svg",
+      "lg": "photos/001-dusk-lg.svg"
     },
     "width": 1600,
     "height": 1000,
@@ -30,8 +30,8 @@
   {
     "id": "002-harbor",
     "src": {
-      "sm": "/photos/002-harbor-sm.svg",
-      "lg": "/photos/002-harbor-lg.svg"
+      "sm": "photos/002-harbor-sm.svg",
+      "lg": "photos/002-harbor-lg.svg"
     },
     "width": 1200,
     "height": 1200,
@@ -58,8 +58,8 @@
   {
     "id": "003-tide",
     "src": {
-      "sm": "/photos/003-tide-sm.svg",
-      "lg": "/photos/003-tide-lg.svg"
+      "sm": "photos/003-tide-sm.svg",
+      "lg": "photos/003-tide-lg.svg"
     },
     "width": 1000,
     "height": 1500,
@@ -86,8 +86,8 @@
   {
     "id": "004-lantern",
     "src": {
-      "sm": "/photos/004-lantern-sm.svg",
-      "lg": "/photos/004-lantern-lg.svg"
+      "sm": "photos/004-lantern-sm.svg",
+      "lg": "photos/004-lantern-lg.svg"
     },
     "width": 1500,
     "height": 1000,
@@ -114,8 +114,8 @@
   {
     "id": "005-market",
     "src": {
-      "sm": "/photos/005-market-sm.svg",
-      "lg": "/photos/005-market-lg.svg"
+      "sm": "photos/005-market-sm.svg",
+      "lg": "photos/005-market-lg.svg"
     },
     "width": 1000,
     "height": 1300,
@@ -142,8 +142,8 @@
   {
     "id": "006-straw",
     "src": {
-      "sm": "/photos/006-straw-sm.svg",
-      "lg": "/photos/006-straw-lg.svg"
+      "sm": "photos/006-straw-sm.svg",
+      "lg": "photos/006-straw-lg.svg"
     },
     "width": 1600,
     "height": 1100,
@@ -170,8 +170,8 @@
   {
     "id": "007-fern",
     "src": {
-      "sm": "/photos/007-fern-sm.svg",
-      "lg": "/photos/007-fern-lg.svg"
+      "sm": "photos/007-fern-sm.svg",
+      "lg": "photos/007-fern-lg.svg"
     },
     "width": 1200,
     "height": 900,
@@ -198,8 +198,8 @@
   {
     "id": "008-moss",
     "src": {
-      "sm": "/photos/008-moss-sm.svg",
-      "lg": "/photos/008-moss-lg.svg"
+      "sm": "photos/008-moss-sm.svg",
+      "lg": "photos/008-moss-lg.svg"
     },
     "width": 1000,
     "height": 1000,
@@ -226,8 +226,8 @@
   {
     "id": "009-canopy",
     "src": {
-      "sm": "/photos/009-canopy-sm.svg",
-      "lg": "/photos/009-canopy-lg.svg"
+      "sm": "photos/009-canopy-sm.svg",
+      "lg": "photos/009-canopy-lg.svg"
     },
     "width": 900,
     "height": 1400,
@@ -254,8 +254,8 @@
   {
     "id": "010-fog",
     "src": {
-      "sm": "/photos/010-fog-sm.svg",
-      "lg": "/photos/010-fog-lg.svg"
+      "sm": "photos/010-fog-sm.svg",
+      "lg": "photos/010-fog-lg.svg"
     },
     "width": 1500,
     "height": 1000,
@@ -282,8 +282,8 @@
   {
     "id": "011-concrete",
     "src": {
-      "sm": "/photos/011-concrete-sm.svg",
-      "lg": "/photos/011-concrete-lg.svg"
+      "sm": "photos/011-concrete-sm.svg",
+      "lg": "photos/011-concrete-lg.svg"
     },
     "width": 1200,
     "height": 1200,
@@ -310,8 +310,8 @@
   {
     "id": "012-ember",
     "src": {
-      "sm": "/photos/012-ember-sm.svg",
-      "lg": "/photos/012-ember-lg.svg"
+      "sm": "photos/012-ember-sm.svg",
+      "lg": "photos/012-ember-lg.svg"
     },
     "width": 1400,
     "height": 1000,
