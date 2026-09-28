@@ -14,6 +14,7 @@ import { PhotoList } from './PhotoList';
 interface Entry {
   base: PhotoBase;
   existing: boolean;
+  fileName?: string;
   sm?: Blob;
   lg?: Blob;
   thumb: string;
@@ -39,6 +40,7 @@ export function PrepApp() {
   const [problems, setProblems] = useState<string[]>([]);
   const [selected, setSelected] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [orphans, setOrphans] = useState<string[]>([]);
 
   const commit = useCallback((next: Entry[]) => {
     entriesRef.current = next;
@@ -48,10 +50,14 @@ export function PrepApp() {
   const addFiles = useCallback(
     (files: File[]) => {
       const images = files.filter((f) => /^image\/(jpeg|png|webp)$/.test(f.type) || /\.(jpe?g|png|webp)$/i.test(f.name));
+      const unsupported = files
+        .filter((f) => !images.includes(f))
+        .map((f) => `${f.name}: not supported — export as JPG or PNG`);
+      if (unsupported.length) setProblems(unsupported);
       if (images.length === 0) return;
       queue.current = queue.current.then(async () => {
         setBusy(true);
-        const failed: string[] = [];
+        const failed: string[] = [...unsupported];
         for (let i = 0; i < images.length; i++) {
           setProgress({ done: i, total: images.length });
           await new Promise((r) => setTimeout(r, 0));
@@ -69,7 +75,7 @@ export function PrepApp() {
               brightness: brightnessOf(res.small),
               saturation: saturationOf(res.small),
             };
-            commit([...entriesRef.current, { base, existing: false, sm: res.sm, lg: res.lg, thumb: URL.createObjectURL(res.sm) }]);
+            commit([...entriesRef.current, { base, existing: false, fileName: file.name, sm: res.sm, lg: res.lg, thumb: URL.createObjectURL(res.sm) }]);
           } catch (e) {
             failed.push(`${file.name}: ${e instanceof Error ? e.message : 'could not be read'}`);
           }
@@ -85,8 +91,16 @@ export function PrepApp() {
   const placeholders = useCallback(async () => {
     setBusy(true);
     setProgress({ done: 0, total: 0 });
-    const files = await generatePlaceholders(40);
-    addFiles(files);
+    let files: File[] = [];
+    try {
+      files = await generatePlaceholders(40);
+    } catch (e) {
+      setProblems([`placeholders: ${e instanceof Error ? e.message : 'could not be generated'}`]);
+    } finally {
+      setProgress(null);
+      setBusy(false);
+    }
+    if (files.length) addFiles(files);
   }, [addFiles]);
 
   const loadExisting = useCallback(
@@ -99,9 +113,9 @@ export function PrepApp() {
           if (!Array.isArray(data)) throw new Error('expected a list');
           if (data.length && data[0].colors) {
             for (const p of data as Photo[]) {
-              if (entriesRef.current.some((e) => e.base.id === p.id) || loaded.some((e) => e.base.id === p.id)) continue;
+              if (entriesRef.current.some((e) => e.existing && e.base.id === p.id) || loaded.some((e) => e.base.id === p.id)) continue;
               const { x: _x, y: _y, ...base } = p;
-              loaded.push({ base, existing: true, thumb: `/${p.src.sm}` });
+              loaded.push({ base, existing: true, thumb: import.meta.env.BASE_URL + p.src.sm });
             }
           }
           // connections.json needs no reading: connections are recomputed from the palettes.
@@ -109,7 +123,23 @@ export function PrepApp() {
           failed.push(`${f.name}: ${e instanceof Error ? e.message : 'not valid JSON'}`);
         }
       }
-      commit([...entriesRef.current, ...loaded]);
+      // Re-id new entries (added before loading) against the union of all ids; existing ids never change.
+      const used: string[] = loaded.map((e) => e.base.id);
+      const reided = entriesRef.current.map((e) => {
+        if (e.existing) {
+          used.push(e.base.id);
+          return e;
+        }
+        if (!used.includes(e.base.id) && !loaded.some((l) => l.base.id === e.base.id)) {
+          used.push(e.base.id);
+          return e;
+        }
+        const id = nextId(used, e.fileName ?? e.base.id.replace(/^\d+-/, ''));
+        used.push(id);
+        return { ...e, base: { ...e.base, id, src: { sm: `photos/${id}-sm.webp`, lg: `photos/${id}-lg.webp` } } };
+      });
+      commit([...reided, ...loaded]);
+      setSelected(null);
       setProblems(failed);
     },
     [commit],
@@ -119,6 +149,7 @@ export function PrepApp() {
     (id: string) => {
       const gone = entriesRef.current.find((e) => e.base.id === id);
       if (gone && !gone.existing) URL.revokeObjectURL(gone.thumb);
+      if (gone?.existing) setOrphans((o) => [...o, id]);
       commit(entriesRef.current.filter((e) => e.base.id !== id));
       setSelected((s) => (s === id ? null : s));
     },
@@ -218,6 +249,9 @@ export function PrepApp() {
           {hasExisting && (
             <p className="note">Existing images stay in public/photos. The zip only contains new images.</p>
           )}
+          {orphans.map((id) => (
+            <p className="note" key={id}>Also delete public/photos/{id}-sm.webp and -lg.webp from the project.</p>
+          ))}
           {errors.length > 0 && (
             <div className="errors">
               <p>Downloads are off until these are fixed:</p>
