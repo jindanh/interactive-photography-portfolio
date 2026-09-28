@@ -1,5 +1,6 @@
 import { neighbors } from '../../data';
-import type { NodeState } from '../components/PhotoNode';
+
+export type NodeState = 'default' | 'hover' | 'focused' | 'connected' | 'dim';
 
 export const TRAIL_MAX = 12;
 
@@ -47,7 +48,9 @@ export function threadReducer(s: ThreadState, a: ThreadAction): ThreadState {
     case 'preview':
       return s.previewId === a.id ? s : { ...s, previewId: a.id };
     case 'focus': {
-      if (s.focusedId === a.id) return { ...s, previewId: null, hoveredEdge: null };
+      if (s.focusedId === a.id) {
+        return s.previewId === null && s.hoveredEdge === null ? s : { ...s, previewId: null, hoveredEdge: null };
+      }
       let trail = s.trail;
       if (s.focusedId && trail[trail.length - 1] !== s.focusedId) {
         trail = [...trail, s.focusedId].slice(-TRAIL_MAX);
