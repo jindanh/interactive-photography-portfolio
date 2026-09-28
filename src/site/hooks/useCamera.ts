@@ -132,8 +132,9 @@ export function useCamera(
       interacted.current = true;
       const from = { ...cam.current };
       const to: Camera = { ...from, ...target };
-      const duration = opts.duration ?? 700;
-      const dip = opts.arc ? 0.18 : 0;
+      const reduced = typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const duration = reduced ? Math.min(opts.duration ?? 700, 200) : (opts.duration ?? 700);
+      const dip = opts.arc && !reduced ? 0.18 : 0;
       const h = tween(duration, (t, raw) => {
         const s = Math.exp(Math.log(from.scale) + (Math.log(to.scale) - Math.log(from.scale)) * t);
         set({
