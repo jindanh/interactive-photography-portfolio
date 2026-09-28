@@ -11,13 +11,15 @@ export interface VisualCanvasProps {
   /** Per-node state, computed by the owner (memoized). */
   nodeStates?: Readonly<Record<string, NodeState>>;
   onNodeClick?: (id: string, pointerType: string) => void;
-  onNodeHover?: (id: string | null) => void;
+  onNodeHover?: (id: string | null, source?: 'keyboard') => void;
+  /** Click/tap on empty canvas (not a node, edge, or the end of a drag). */
+  onBackgroundClick?: () => void;
   /** SVG content in world coordinates (edges, trail), drawn below the nodes. */
   connections?: ReactNode;
 }
 
 export const VisualCanvas = forwardRef<CameraApi, VisualCanvasProps>(function VisualCanvas(
-  { nodeStates, onNodeClick, onNodeHover, connections },
+  { nodeStates, onNodeClick, onNodeHover, onBackgroundClick, connections },
   ref,
 ) {
   const rootRef = useRef<HTMLDivElement>(null);
@@ -38,13 +40,38 @@ export const VisualCanvas = forwardRef<CameraApi, VisualCanvasProps>(function Vi
     return () => root.removeEventListener('pointerdown', onDown, true);
   }, []);
 
+  const bgRef = useRef(onBackgroundClick);
+  bgRef.current = onBackgroundClick;
+  useEffect(() => {
+    const root = rootRef.current;
+    if (!root) return;
+    const onBg = (e: MouseEvent) => {
+      if (e.defaultPrevented || e.target !== root) return; // drag-suppression preventDefaults
+      bgRef.current?.();
+    };
+    // Keyboard focus can scroll this overflow:hidden container; keep it pinned.
+    const onScroll = () => {
+      root.scrollTop = 0;
+      root.scrollLeft = 0;
+    };
+    root.addEventListener('click', onBg);
+    root.addEventListener('scroll', onScroll);
+    return () => {
+      root.removeEventListener('click', onBg);
+      root.removeEventListener('scroll', onScroll);
+    };
+  }, []);
+
   const hoverRef = useRef(onNodeHover);
   hoverRef.current = onNodeHover;
-  const onEnter = useCallback((id: string) => hoverRef.current?.(id), []);
-  const onLeave = useCallback(() => hoverRef.current?.(null), []);
+  const onEnter = useCallback((id: string, source?: 'keyboard') => hoverRef.current?.(id, source), []);
+  const onLeave = useCallback((_id: string, source?: 'keyboard') => hoverRef.current?.(null, source), []);
   const clickRef = useRef(onNodeClick);
   clickRef.current = onNodeClick;
-  const onClick = useCallback((id: string) => clickRef.current?.(id, lastPointer.current), []);
+  const onClick = useCallback(
+    (id: string, pointerType?: string) => clickRef.current?.(id, pointerType ?? lastPointer.current),
+    [],
+  );
 
   return (
     <div className="visual-canvas" ref={rootRef}>
