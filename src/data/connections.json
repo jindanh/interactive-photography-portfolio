@@ -1,98 +1,458 @@
 [
   {
-    "source": "001-dusk",
-    "target": "002-harbor",
-    "type": "color",
-    "strength": 0.92
-  },
-  {
-    "source": "001-dusk",
-    "target": "003-tide",
-    "type": "color",
-    "strength": 0.85
-  },
-  {
-    "source": "002-harbor",
-    "target": "003-tide",
-    "type": "color",
-    "strength": 0.88
-  },
-  {
-    "source": "002-harbor",
-    "target": "011-concrete",
-    "type": "color",
-    "strength": 0.4
-  },
-  {
-    "source": "004-lantern",
-    "target": "005-market",
-    "type": "color",
-    "strength": 0.9
-  },
-  {
-    "source": "004-lantern",
-    "target": "006-straw",
-    "type": "color",
-    "strength": 0.82
-  },
-  {
-    "source": "005-market",
-    "target": "006-straw",
+    "source": "001-brick",
+    "target": "013-peony",
     "type": "color",
     "strength": 0.78
   },
   {
-    "source": "005-market",
-    "target": "012-ember",
+    "source": "001-brick",
+    "target": "020-rosehip",
     "type": "color",
-    "strength": 0.6
+    "strength": 0.64
   },
   {
-    "source": "004-lantern",
-    "target": "012-ember",
+    "source": "001-brick",
+    "target": "032-coral",
     "type": "color",
-    "strength": 0.55
+    "strength": 0.62
   },
   {
-    "source": "007-fern",
-    "target": "008-moss",
+    "source": "002-cinder",
+    "target": "020-rosehip",
     "type": "color",
-    "strength": 0.9
+    "strength": 0.62
   },
   {
-    "source": "007-fern",
-    "target": "009-canopy",
+    "source": "002-cinder",
+    "target": "027-cherry",
     "type": "color",
-    "strength": 0.84
+    "strength": 0.83
   },
   {
-    "source": "008-moss",
-    "target": "009-canopy",
+    "source": "002-cinder",
+    "target": "032-coral",
+    "type": "color",
+    "strength": 0.77
+  },
+  {
+    "source": "003-tide",
+    "target": "011-dusk",
+    "type": "color",
+    "strength": 0.7
+  },
+  {
+    "source": "003-tide",
+    "target": "012-rain",
+    "type": "color",
+    "strength": 0.62
+  },
+  {
+    "source": "003-tide",
+    "target": "016-indigo",
+    "type": "color",
+    "strength": 0.65
+  },
+  {
+    "source": "003-tide",
+    "target": "034-bluehour",
+    "type": "color",
+    "strength": 0.63
+  },
+  {
+    "source": "004-lichen",
+    "target": "007-fern",
+    "type": "color",
+    "strength": 0.83
+  },
+  {
+    "source": "004-lichen",
+    "target": "014-sage",
+    "type": "color",
+    "strength": 0.79
+  },
+  {
+    "source": "004-lichen",
+    "target": "036-orchard",
+    "type": "color",
+    "strength": 0.64
+  },
+  {
+    "source": "004-lichen",
+    "target": "040-meadow",
+    "type": "color",
+    "strength": 0.72
+  },
+  {
+    "source": "005-ash",
+    "target": "018-fog",
+    "type": "color",
+    "strength": 0.72
+  },
+  {
+    "source": "005-ash",
+    "target": "023-straw",
+    "type": "color",
+    "strength": 0.51
+  },
+  {
+    "source": "005-ash",
+    "target": "026-bone",
     "type": "color",
     "strength": 0.8
   },
   {
-    "source": "008-moss",
-    "target": "010-fog",
+    "source": "005-ash",
+    "target": "028-pebble",
     "type": "color",
-    "strength": 0.35
+    "strength": 0.77
   },
   {
-    "source": "010-fog",
-    "target": "011-concrete",
+    "source": "005-ash",
+    "target": "032-coral",
     "type": "color",
-    "strength": 0.93
+    "strength": 0.38
   },
   {
-    "source": "006-straw",
-    "target": "010-fog",
+    "source": "006-concrete",
+    "target": "015-slate",
     "type": "color",
-    "strength": 0.42
+    "strength": 0.84
+  },
+  {
+    "source": "006-concrete",
+    "target": "017-paper",
+    "type": "color",
+    "strength": 0.81
+  },
+  {
+    "source": "006-concrete",
+    "target": "018-fog",
+    "type": "color",
+    "strength": 0.83
+  },
+  {
+    "source": "006-concrete",
+    "target": "026-bone",
+    "type": "color",
+    "strength": 0.79
+  },
+  {
+    "source": "006-concrete",
+    "target": "028-pebble",
+    "type": "color",
+    "strength": 0.86
   },
   {
     "source": "007-fern",
-    "target": "011-concrete",
+    "target": "014-sage",
     "type": "color",
-    "strength": 0.3
+    "strength": 0.69
+  },
+  {
+    "source": "007-fern",
+    "target": "033-canopy",
+    "type": "color",
+    "strength": 0.69
+  },
+  {
+    "source": "007-fern",
+    "target": "040-meadow",
+    "type": "color",
+    "strength": 0.7
+  },
+  {
+    "source": "008-glacier",
+    "target": "016-indigo",
+    "type": "color",
+    "strength": 0.65
+  },
+  {
+    "source": "008-glacier",
+    "target": "029-harbor",
+    "type": "color",
+    "strength": 0.65
+  },
+  {
+    "source": "008-glacier",
+    "target": "034-bluehour",
+    "type": "color",
+    "strength": 0.7
+  },
+  {
+    "source": "009-pine",
+    "target": "014-sage",
+    "type": "color",
+    "strength": 0.66
+  },
+  {
+    "source": "009-pine",
+    "target": "033-canopy",
+    "type": "color",
+    "strength": 0.79
+  },
+  {
+    "source": "009-pine",
+    "target": "036-orchard",
+    "type": "color",
+    "strength": 0.62
+  },
+  {
+    "source": "009-pine",
+    "target": "038-moss",
+    "type": "color",
+    "strength": 0.75
+  },
+  {
+    "source": "010-dune",
+    "target": "030-honey",
+    "type": "color",
+    "strength": 0.62
+  },
+  {
+    "source": "010-dune",
+    "target": "031-lantern",
+    "type": "color",
+    "strength": 0.78
+  },
+  {
+    "source": "010-dune",
+    "target": "035-ember",
+    "type": "color",
+    "strength": 0.63
+  },
+  {
+    "source": "011-dusk",
+    "target": "012-rain",
+    "type": "color",
+    "strength": 0.6
+  },
+  {
+    "source": "011-dusk",
+    "target": "024-lagoon",
+    "type": "color",
+    "strength": 0.65
+  },
+  {
+    "source": "012-rain",
+    "target": "024-lagoon",
+    "type": "color",
+    "strength": 0.72
+  },
+  {
+    "source": "012-rain",
+    "target": "029-harbor",
+    "type": "color",
+    "strength": 0.6
+  },
+  {
+    "source": "012-rain",
+    "target": "034-bluehour",
+    "type": "color",
+    "strength": 0.66
+  },
+  {
+    "source": "013-peony",
+    "target": "020-rosehip",
+    "type": "color",
+    "strength": 0.63
+  },
+  {
+    "source": "013-peony",
+    "target": "027-cherry",
+    "type": "color",
+    "strength": 0.63
+  },
+  {
+    "source": "014-sage",
+    "target": "040-meadow",
+    "type": "color",
+    "strength": 0.64
+  },
+  {
+    "source": "015-slate",
+    "target": "017-paper",
+    "type": "color",
+    "strength": 0.84
+  },
+  {
+    "source": "015-slate",
+    "target": "018-fog",
+    "type": "color",
+    "strength": 0.86
+  },
+  {
+    "source": "015-slate",
+    "target": "026-bone",
+    "type": "color",
+    "strength": 0.76
+  },
+  {
+    "source": "015-slate",
+    "target": "028-pebble",
+    "type": "color",
+    "strength": 0.79
+  },
+  {
+    "source": "016-indigo",
+    "target": "034-bluehour",
+    "type": "color",
+    "strength": 0.66
+  },
+  {
+    "source": "017-paper",
+    "target": "018-fog",
+    "type": "color",
+    "strength": 0.76
+  },
+  {
+    "source": "018-fog",
+    "target": "028-pebble",
+    "type": "color",
+    "strength": 0.83
+  },
+  {
+    "source": "019-harvest",
+    "target": "021-marigold",
+    "type": "color",
+    "strength": 0.75
+  },
+  {
+    "source": "019-harvest",
+    "target": "031-lantern",
+    "type": "color",
+    "strength": 0.56
+  },
+  {
+    "source": "019-harvest",
+    "target": "035-ember",
+    "type": "color",
+    "strength": 0.66
+  },
+  {
+    "source": "019-harvest",
+    "target": "037-amber",
+    "type": "color",
+    "strength": 0.67
+  },
+  {
+    "source": "019-harvest",
+    "target": "039-sunroom",
+    "type": "color",
+    "strength": 0.62
+  },
+  {
+    "source": "020-rosehip",
+    "target": "022-poppy",
+    "type": "color",
+    "strength": 0.82
+  },
+  {
+    "source": "020-rosehip",
+    "target": "027-cherry",
+    "type": "color",
+    "strength": 0.66
+  },
+  {
+    "source": "021-marigold",
+    "target": "030-honey",
+    "type": "color",
+    "strength": 0.69
+  },
+  {
+    "source": "021-marigold",
+    "target": "035-ember",
+    "type": "color",
+    "strength": 0.69
+  },
+  {
+    "source": "022-poppy",
+    "target": "025-blush",
+    "type": "color",
+    "strength": 0.62
+  },
+  {
+    "source": "022-poppy",
+    "target": "027-cherry",
+    "type": "color",
+    "strength": 0.61
+  },
+  {
+    "source": "023-straw",
+    "target": "030-honey",
+    "type": "color",
+    "strength": 0.53
+  },
+  {
+    "source": "023-straw",
+    "target": "036-orchard",
+    "type": "color",
+    "strength": 0.48
+  },
+  {
+    "source": "023-straw",
+    "target": "037-amber",
+    "type": "color",
+    "strength": 0.63
+  },
+  {
+    "source": "024-lagoon",
+    "target": "034-bluehour",
+    "type": "color",
+    "strength": 0.58
+  },
+  {
+    "source": "025-blush",
+    "target": "032-coral",
+    "type": "color",
+    "strength": 0.53
+  },
+  {
+    "source": "027-cherry",
+    "target": "032-coral",
+    "type": "color",
+    "strength": 0.79
+  },
+  {
+    "source": "028-pebble",
+    "target": "029-harbor",
+    "type": "color",
+    "strength": 0.64
+  },
+  {
+    "source": "030-honey",
+    "target": "035-ember",
+    "type": "color",
+    "strength": 0.75
+  },
+  {
+    "source": "030-honey",
+    "target": "039-sunroom",
+    "type": "color",
+    "strength": 0.68
+  },
+  {
+    "source": "033-canopy",
+    "target": "038-moss",
+    "type": "color",
+    "strength": 0.78
+  },
+  {
+    "source": "035-ember",
+    "target": "039-sunroom",
+    "type": "color",
+    "strength": 0.63
+  },
+  {
+    "source": "036-orchard",
+    "target": "038-moss",
+    "type": "color",
+    "strength": 0.65
+  },
+  {
+    "source": "037-amber",
+    "target": "039-sunroom",
+    "type": "color",
+    "strength": 0.61
   }
 ]
