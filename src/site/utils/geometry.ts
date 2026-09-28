@@ -37,4 +37,14 @@ export function fitCamera(b: Bounds, vw: number, vh: number, margin = 0.08): Cam
   return { x: (b.minX + b.maxX) / 2, y: (b.minY + b.maxY) / 2, scale };
 }
 
+/** Extra zoom that makes a portrait viewport fill more of its height (1 elsewhere). */
+export function portraitFactor(b: Bounds, vw: number, vh: number, margin = 0.08): number {
+  if (vw / vh >= 0.8) return 1;
+  const bw = Math.max(1, b.maxX - b.minX);
+  const bh = Math.max(1, b.maxY - b.minY);
+  const widthFit = (vw * (1 - margin * 2)) / bw;
+  const heightFit = (vh * (1 - margin * 2)) / bh;
+  return Math.min(1.4, heightFit / widthFit);
+}
+
 export const clamp = (v: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, v));
