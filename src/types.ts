@@ -22,6 +22,12 @@ export interface Photo {
    * e.g. "photos/001-dusk-sm.webp". Resolve with import.meta.env.BASE_URL + path.
    */
   src: { sm: string; lg: string };
+  /**
+   * Optional short description of the image for screen readers (not shown
+   * visually). When absent the site uses "Photograph N" (N = id ordinal).
+   * Photo Prep preserves it on re-export; add it by hand-editing photos.json.
+   */
+  alt?: string;
   /** Pixel size of the lg image (lg long edge ≈ 1800px; sm long edge ≈ 480px). */
   width: number;
   height: number;
