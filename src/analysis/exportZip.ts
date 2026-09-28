@@ -8,6 +8,7 @@ export function serializePhotos(photos: Photo[]): string {
   const rows = photos.map((p) => ({
     id: p.id,
     src: { sm: p.src.sm, lg: p.src.lg },
+    ...(p.alt ? { alt: p.alt } : {}),
     width: p.width,
     height: p.height,
     aspect: r3(p.aspect),

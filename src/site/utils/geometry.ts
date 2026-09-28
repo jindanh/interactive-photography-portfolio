@@ -48,3 +48,32 @@ export function portraitFactor(b: Bounds, vw: number, vh: number, margin = 0.08)
 }
 
 export const clamp = (v: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, v));
+
+const CURVE = 0.15;
+const GAP = 4;
+
+/** Point where the ray from center `p` toward `q` leaves p's box (plus a small gap). */
+function boxExit(p: Photo, q: Photo): { x: number; y: number } {
+  const { w, h } = nodeSize(p);
+  const dx = q.x - p.x;
+  const dy = q.y - p.y;
+  const len = Math.hypot(dx, dy) || 1;
+  const t = Math.min(dx ? w / 2 / Math.abs(dx) : Infinity, dy ? h / 2 / Math.abs(dy) : Infinity);
+  const d = Math.min(len * 0.45, t * len + GAP);
+  return { x: p.x + (dx / len) * d, y: p.y + (dy / len) * d };
+}
+
+/**
+ * Gentle quadratic curve between two photos. Direction is normalized by id so A->B and B->A
+ * produce the identical path (edges, trail and hit-paths always coincide).
+ */
+export function curvePath(a: Photo, b: Photo): string {
+  if (b.id < a.id) [a, b] = [b, a];
+  const s = boxExit(a, b);
+  const e = boxExit(b, a);
+  const dx = e.x - s.x;
+  const dy = e.y - s.y;
+  const cx = (s.x + e.x) / 2 - dy * CURVE;
+  const cy = (s.y + e.y) / 2 + dx * CURVE;
+  return `M${s.x.toFixed(1)} ${s.y.toFixed(1)}Q${cx.toFixed(1)} ${cy.toFixed(1)} ${e.x.toFixed(1)} ${e.y.toFixed(1)}`;
+}

@@ -1,3 +1,12 @@
+/* Z-order inside .world (a stacking context): dim nodes < edges < connected < hover/focused (2, canvas.css). */
+.visual-canvas .connections {
+  z-index: 1;
+}
+
+.photo-node.is-connected {
+  z-index: 2;
+}
+
 /* Only paths are styled here; opacity of svg.connections / .edges belongs to the zoom fade. */
 .connections .edge {
   stroke-width: calc(1.5px / var(--zoom, 1));
