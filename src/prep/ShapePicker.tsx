@@ -92,7 +92,7 @@ export function ShapePicker({ shape, invert, customMask, onShape, onCustomFile, 
   const btns = useRef<(HTMLButtonElement | null)[]>([]);
 
   const pick = (o: ShapeChoice) => {
-    if (o === 'custom') fileRef.current?.click();
+    if (o === 'custom' && !customMask) fileRef.current?.click();
     else onShape(o);
   };
   // Arrow keys move focus along the group; Enter/Space chooses (so Custom never opens the file picker by accident).
@@ -135,10 +135,13 @@ export function ShapePicker({ shape, invert, customMask, onShape, onCustomFile, 
           e.target.value = '';
         }}
       />
-      {shape === 'custom' && (
-        <label className="shape-invert">
-          <input type="checkbox" checked={invert} onChange={(e) => onInvert(e.target.checked)} /> Invert
-        </label>
+      {shape === 'custom' && customMask && (
+        <>
+          <label className="shape-invert">
+            <input type="checkbox" checked={invert} onChange={(e) => onInvert(e.target.checked)} /> Invert
+          </label>
+          <button type="button" className="link" onClick={() => fileRef.current?.click()}>Replace image…</button>
+        </>
       )}
       {error && <span className="errors shape-error" role="alert">{error}</span>}
     </div>
