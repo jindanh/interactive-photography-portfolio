@@ -82,6 +82,14 @@
   opacity: 1;
 }
 
+.photo-node[aria-current='true'] {
+  cursor: zoom-in; /* not .is-focused: hover replaces that class */
+}
+
+.photo-node.is-concealed {
+  visibility: hidden;
+}
+
 .photo-node.is-hover,
 .photo-node.is-focused {
   opacity: 1;

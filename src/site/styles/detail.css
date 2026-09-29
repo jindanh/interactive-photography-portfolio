@@ -1,0 +1,186 @@
+/* "Look closer" detail view: a paper veil over the graph, the photo grown in place, a quiet thread strip. */
+.detail {
+  --thumb: 72px;
+  position: fixed;
+  inset: 0;
+  z-index: 8; /* above hints (5), below the intro (10) */
+  outline: none;
+  cursor: zoom-out;
+  overflow: hidden;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.detail-veil {
+  position: absolute;
+  inset: 0;
+  background: color-mix(in srgb, var(--bg) 82%, transparent);
+}
+
+.detail-layer {
+  position: absolute;
+  transform-origin: 0 0;
+}
+
+.detail-layer.is-entering.is-current {
+  animation: detail-in 300ms ease both;
+}
+
+.detail-layer.is-leaving {
+  animation: detail-out 300ms ease both;
+  pointer-events: none;
+}
+
+.detail.is-closing .detail-layer.is-leaving {
+  display: none;
+}
+
+.detail.is-closing .detail-layer.is-current {
+  animation: none;
+}
+
+.detail-img {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  -webkit-user-drag: none;
+}
+
+.detail-img-lg {
+  opacity: 0;
+  transition: opacity 500ms ease-out;
+}
+
+.detail-img-lg.is-loaded {
+  opacity: 1;
+}
+
+.detail-bar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(100% + 10px);
+  height: 6px;
+  display: flex;
+  transition: opacity 250ms ease;
+}
+
+.detail-bar i {
+  display: block;
+}
+
+.detail.is-opening .detail-bar,
+.detail.is-closing .detail-bar {
+  opacity: 0;
+  transition: none;
+}
+
+.detail-strip {
+  position: absolute;
+  right: 32px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 18px;
+}
+
+.detail-thumb {
+  appearance: none;
+  background: none;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  display: block;
+  cursor: pointer;
+  opacity: 0.85;
+  transition: opacity 200ms ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.detail-thumb img {
+  display: block;
+}
+
+.detail-thumb:hover,
+.detail-thumb:focus-visible {
+  opacity: 1;
+}
+
+.detail-thumb:focus {
+  outline: none;
+}
+
+.detail-thumb:focus-visible {
+  outline: 1.5px solid var(--ink);
+  outline-offset: 4px;
+}
+
+.detail-thumb-line {
+  display: block;
+  height: 2px;
+  margin-top: 5px;
+}
+
+.detail-close {
+  appearance: none;
+  position: absolute;
+  top: 10px;
+  right: 14px;
+  width: 44px;
+  height: 44px;
+  padding: 0 0 4px;
+  background: none;
+  border: 0;
+  font: 300 24px/1 var(--font);
+  color: var(--ink-muted);
+  cursor: pointer;
+  transition: color 200ms ease;
+}
+
+.detail-close:hover,
+.detail-close:focus-visible {
+  color: var(--ink);
+}
+
+.detail-close:focus {
+  outline: none;
+}
+
+.detail-close:focus-visible {
+  outline: 1.5px solid var(--ink);
+  outline-offset: -8px;
+}
+
+@keyframes detail-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes detail-out {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+@media (max-width: 600px) {
+  .detail {
+    --thumb: 56px;
+  }
+  .detail-strip {
+    left: 16px;
+    right: 16px;
+    top: auto;
+    bottom: 16px;
+    transform: none;
+    flex-direction: row;
+    align-items: flex-end;
+    justify-content: center;
+    gap: 12px;
+  }
+  .detail-close {
+    top: 2px;
+    right: 6px;
+  }
+}

@@ -1,4 +1,4 @@
-import { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useRef } from 'react';
+import { forwardRef, useCallback, useEffect, useLayoutEffect, useImperativeHandle, useMemo, useRef } from 'react';
 import type { ReactNode } from 'react';
 import { photos } from '../../data';
 import { useCamera } from '../hooks/useCamera';
@@ -20,15 +20,22 @@ export interface VisualCanvasProps {
   onBackgroundClick?: () => void;
   /** SVG content in world coordinates (edges, trail), drawn above dim nodes, below connected/focused ones (see the z-order rules in canvas.css). */
   connections?: ReactNode;
+  /** Makes the whole canvas inert (set via the DOM property; React 18 types lack it). */
+  inert?: boolean;
+  /** Photo hidden because the detail view shows it. */
+  concealedId?: string | null;
 }
 
 export const VisualCanvas = forwardRef<CameraApi, VisualCanvasProps>(function VisualCanvas(
-  { nodeStates, tabbable, focusedId, onNodeClick, onNodeHover, onBackgroundClick, connections },
+  { nodeStates, tabbable, focusedId, onNodeClick, onNodeHover, onBackgroundClick, connections, inert, concealedId },
   ref,
 ) {
   const rootRef = useRef<HTMLDivElement>(null);
   const worldRef = useRef<HTMLDivElement>(null);
   const bounds = useMemo(() => photoBounds(photos), []);
+  useLayoutEffect(() => {
+    if (rootRef.current) rootRef.current.inert = !!inert;
+  }, [inert]);
   const camera = useCamera(rootRef, worldRef, bounds);
   useImperativeHandle(ref, () => camera, [camera]);
 
@@ -90,6 +97,7 @@ export const VisualCanvas = forwardRef<CameraApi, VisualCanvasProps>(function Vi
             state={nodeStates?.[p.id] ?? 'default'}
             tabbable={tabbable ? tabbable[p.id] === true : true}
             current={focusedId === p.id}
+            concealed={concealedId === p.id}
             onPointerEnter={onEnter}
             onPointerLeave={onLeave}
             onClick={onClick}

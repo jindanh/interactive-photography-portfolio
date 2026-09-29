@@ -19,6 +19,8 @@ export interface ThreadState {
   previewId: string | null;
   /** Previously focused photos, oldest first (current focus not included). */
   trail: string[];
+  /** Photo opened in the "look closer" detail view. Invariant: null or === focusedId. */
+  detailId: string | null;
 }
 
 export type ThreadAction =
@@ -26,7 +28,9 @@ export type ThreadAction =
   | { type: 'hoverEdge'; edge: EdgeRef | null }
   | { type: 'preview'; id: string | null }
   | { type: 'focus'; id: string }
-  | { type: 'clear' };
+  | { type: 'clear' }
+  | { type: 'openDetail'; id: string }
+  | { type: 'closeDetail' };
 
 export const initialThreadState: ThreadState = {
   focusedId: null,
@@ -34,18 +38,22 @@ export const initialThreadState: ThreadState = {
   hoveredEdge: null,
   previewId: null,
   trail: [],
+  detailId: null,
 };
 
 export function threadReducer(s: ThreadState, a: ThreadAction): ThreadState {
   switch (a.type) {
     case 'hoverNode':
+      if (s.detailId !== null && a.id !== null) return s;
       return s.hoveredId === a.id ? s : { ...s, hoveredId: a.id };
     case 'hoverEdge': {
+      if (s.detailId !== null && a.edge !== null) return s;
       const e = s.hoveredEdge;
       if (e === a.edge || (e && a.edge && e.from === a.edge.from && e.to === a.edge.to)) return s;
       return { ...s, hoveredEdge: a.edge };
     }
     case 'preview':
+      if (s.detailId !== null && a.id !== null) return s;
       return s.previewId === a.id ? s : { ...s, previewId: a.id };
     case 'focus': {
       if (s.focusedId === a.id) {
@@ -55,7 +63,8 @@ export function threadReducer(s: ThreadState, a: ThreadAction): ThreadState {
       if (s.focusedId && trail[trail.length - 1] !== s.focusedId) {
         trail = [...trail, s.focusedId].slice(-TRAIL_MAX);
       }
-      return { ...s, focusedId: a.id, previewId: null, hoveredEdge: null, trail };
+      // While the detail is open, a focus change is a follow: the detail moves with it.
+      return { ...s, focusedId: a.id, previewId: null, hoveredEdge: null, trail, detailId: s.detailId !== null ? a.id : null };
     }
     case 'clear': {
       // Keep the trail intact: fold the current focus into it.
@@ -63,8 +72,13 @@ export function threadReducer(s: ThreadState, a: ThreadAction): ThreadState {
       if (s.focusedId && trail[trail.length - 1] !== s.focusedId) {
         trail = [...trail, s.focusedId].slice(-TRAIL_MAX);
       }
-      return { ...s, focusedId: null, previewId: null, hoveredEdge: null, trail };
+      return { ...s, focusedId: null, previewId: null, hoveredEdge: null, trail, detailId: null };
     }
+    case 'openDetail':
+      if (a.id !== s.focusedId || s.detailId === a.id) return s;
+      return { ...s, detailId: a.id, previewId: null, hoveredId: null, hoveredEdge: null };
+    case 'closeDetail':
+      return s.detailId === null ? s : { ...s, detailId: null };
   }
 }
 

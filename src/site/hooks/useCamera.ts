@@ -25,6 +25,8 @@ export interface CameraApi {
     bounds?: Bounds,
     opts?: { animate?: boolean; duration?: number; scaleFactor?: number },
   ) => Promise<void>;
+  /** Destination of the running tween, else the current camera. */
+  getTarget: () => Camera;
   /** Scale that fitTo() with no args produces for the current viewport. */
   getHomeScale: () => number;
 }
@@ -121,9 +123,11 @@ export function useCamera(
       };
     };
 
+    let tweenTarget: Camera | null = null;
     const cancelTween = () => {
       running.current?.cancel();
       running.current = null;
+      tweenTarget = null;
     };
     internals.current = { set, clampCam, cancelTween, limits };
 
@@ -144,8 +148,12 @@ export function useCamera(
         });
       });
       running.current = h;
+      tweenTarget = to;
       return h.done.then(() => {
-        if (running.current === h) running.current = null;
+        if (running.current === h) {
+          running.current = null;
+          tweenTarget = null;
+        }
       });
     };
 
@@ -175,7 +183,7 @@ export function useCamera(
       return { x: size.current.w / 2 + (wx - x) * scale, y: size.current.h / 2 + (wy - y) * scale };
     };
 
-    return { animateTo, getCamera: () => ({ ...cam.current }), setCamera: set, worldToScreen, screenToWorld, fitTo, getHomeScale: homeScale };
+    return { animateTo, getCamera: () => ({ ...cam.current }), setCamera: set, worldToScreen, screenToWorld, fitTo, getHomeScale: homeScale, getTarget: () => ({ ...(tweenTarget ?? cam.current) }) };
   }, [rootRef, worldRef]);
 
   useEffect(() => {

@@ -2,6 +2,7 @@ import { memo, useState } from 'react';
 import type { Photo } from '../../types';
 import type { NodeState } from '../state/threadState';
 import { nodeSize } from '../utils/geometry';
+import { photoLabel } from '../utils/label';
 
 export type { NodeState };
 
@@ -12,6 +13,8 @@ export interface PhotoNodeProps {
   tabbable: boolean;
   /** This is the focused photo (aria-current), regardless of hover. */
   current: boolean;
+  /** Source of the open detail: hidden so the photo never appears twice. */
+  concealed?: boolean;
   /** `keyboard` = focus-visible focus; it bypasses the app's hover lock. */
   onPointerEnter: (id: string, source?: 'keyboard') => void;
   onPointerLeave: (id: string, source?: 'keyboard') => void;
@@ -20,7 +23,7 @@ export interface PhotoNodeProps {
 
 const BASE = import.meta.env.BASE_URL;
 
-function PhotoNodeImpl({ photo, state, tabbable, current, onPointerEnter, onPointerLeave, onClick }: PhotoNodeProps) {
+function PhotoNodeImpl({ photo, state, tabbable, current, concealed, onPointerEnter, onPointerLeave, onClick }: PhotoNodeProps) {
   const [loaded, setLoaded] = useState(false);
   const [lgWanted, setLgWanted] = useState(false);
   const [lgLoaded, setLgLoaded] = useState(false);
@@ -28,12 +31,12 @@ function PhotoNodeImpl({ photo, state, tabbable, current, onPointerEnter, onPoin
   const { w, h } = nodeSize(photo);
   return (
     <div
-      className={`photo-node is-${state}`}
+      className={`photo-node is-${state}${concealed ? ' is-concealed' : ''}`}
       data-id={photo.id}
       role="button"
       aria-describedby="kbd-help"
       tabIndex={tabbable ? 0 : -1}
-      aria-label={photo.alt ?? `Photograph ${parseInt(photo.id, 10)}`}
+      aria-label={photoLabel(photo)}
       aria-current={current ? 'true' : undefined}
       style={{
         width: w,
