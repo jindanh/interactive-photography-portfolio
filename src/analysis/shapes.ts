@@ -3,7 +3,12 @@
  * Path2D or ImageData constructor, so everything here runs in Node.
  */
 
-/** Binary mask. Row-major, row 0 = TOP (+y down, same as world). Pixel (i,j) covers [i,i+1)x[j,j+1). */
+/**
+ * Binary mask. Masks are treated as IMMUTABLE once created: the WeakMap/Map caches
+ * below (normalizeMask, shapeMask) key on the object and would go stale if a caller
+ * mutated `data` in place. Make a new Mask instead.
+ * Row-major, row 0 = TOP (+y down, same as world). Pixel (i,j) covers [i,i+1)x[j,j+1).
+ */
 export interface Mask {
   width: number;
   height: number;
@@ -44,16 +49,18 @@ function arc(cx: number, cy: number, r: number, a0: number, a1: number, steps: n
 }
 
 function flowerParts(): ShapePart[] {
+  // Five clearly separate petals (centres 30 from the head), no leaf.
   const parts: ShapePart[] = [];
-  const hx = 50, hy = 42;
+  const hx = 50, hy = 45;
   for (let k = 0; k < 5; k++) {
     const deg = -90 + 72 * k;
     const a = (deg * Math.PI) / 180;
-    parts.push({ kind: 'ellipse', cx: hx + 27 * Math.cos(a), cy: hy + 27 * Math.sin(a), rx: 16, ry: 11.5, rotate: deg });
+    parts.push({ kind: 'ellipse', cx: hx + 30 * Math.cos(a), cy: hy + 30 * Math.sin(a), rx: 16, ry: 10.5, rotate: deg });
   }
-  parts.push({ kind: 'circle', cx: hx, cy: hy, r: 13 });
-  parts.push({ kind: 'stroke', points: [[50, 78], [50, 148]], width: 11 });
-  parts.push({ kind: 'ellipse', cx: 68, cy: 112, rx: 17, ry: 8.5, rotate: -45 });
+  parts.push({ kind: 'circle', cx: hx, cy: hy, r: 12 });
+  // Stem starts just under the lower petals: top = 45 + 30 cos(36deg) + 4 = 73.27, then 6 up / 45 down.
+  const top = hy + 30 * Math.cos(Math.PI / 5) + 4;
+  parts.push({ kind: 'stroke', points: [[50, top - 6], [50, top + 45]], width: 11 });
   return parts;
 }
 
@@ -64,8 +71,8 @@ function umbrellaParts(): ShapePart[] {
     { kind: 'ellipse', cx: 18, cy: 44, rx: 16, ry: 11 },
     { kind: 'ellipse', cx: 50, cy: 44, rx: 16, ry: 11 },
     { kind: 'ellipse', cx: 82, cy: 44, rx: 16, ry: 11 },
-    { kind: 'stroke', points: [[50, 44], [50, 128]], width: 12.5 },
-    { kind: 'stroke', points: arc(36, 128, 14, 0, 180, 24), width: 12.5 },
+    { kind: 'stroke', points: [[50, 44], [50, 110]], width: 12.5 },
+    { kind: 'stroke', points: arc(36, 110, 14, 0, 180, 24), width: 12.5 },
   ];
 }
 
@@ -78,12 +85,13 @@ function heartParts(): ShapePart[] {
     const y = 13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t);
     pts.push([51.2 + x * k, (12.2 - y) * k]);
   }
-  return [{ kind: 'polygon', points: pts }];
+  // Narrow wedge cut from the top edge: a clear cleft (about 2.7 slot units deep).
+  return [{ kind: 'polygon', points: pts }, { kind: 'polygon', op: 'sub', points: [[42.2, 0], [60.2, 0], [51.2, 38]] }];
 }
 
 export const BUILTIN_SHAPES: readonly ShapeDef[] = [
-  { id: 'flower', label: 'Flower', viewBox: { width: 100, height: 150 }, parts: flowerParts() },
-  { id: 'umbrella', label: 'Umbrella', viewBox: { width: 100, height: 150 }, parts: umbrellaParts() },
+  { id: 'flower', label: 'Flower', viewBox: { width: 100, height: 126.2705 }, parts: flowerParts() },
+  { id: 'umbrella', label: 'Umbrella', viewBox: { width: 100, height: 132 }, parts: umbrellaParts() },
   { id: 'heart', label: 'Heart', viewBox: { width: 103, height: 94 }, parts: heartParts() },
   { id: 'circle', label: 'Circle', viewBox: { width: 100, height: 100 }, parts: [{ kind: 'circle', cx: 50, cy: 50, r: 50 }] },
 ];
@@ -149,6 +157,7 @@ export function rasterizeShape(def: ShapeDef, longSide: number = MASK_SIZE): Mas
   return { width, height, data };
 }
 
+// Cache of built-in masks; entries are never mutated or invalidated (masks are immutable).
 const builtinCache = new Map<ShapeId, Mask>();
 /** Memoized rasterization of a built-in shape at MASK_SIZE. Same object for the same id. */
 export function shapeMask(id: ShapeId): Mask {
@@ -195,6 +204,7 @@ export function maskArea(mask: Mask): number {
   return a;
 }
 
+// Keyed by mask object identity; valid only because masks are immutable.
 const normCache = new WeakMap<Mask, Map<string, Mask>>();
 
 /**
