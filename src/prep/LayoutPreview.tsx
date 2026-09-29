@@ -1,4 +1,20 @@
+import { useMemo } from 'react';
 import { NODE_SIZE, type Connection, type Photo } from '../types';
+import type { MaskFrame } from '../analysis/shapedLayout';
+import { maskToRGBA, type Mask } from '../analysis/shapes';
+
+export interface Underlay {
+  mask: Mask;
+  frame: MaskFrame;
+}
+
+function maskDataUrl(mask: Mask): string {
+  const c = document.createElement('canvas');
+  c.width = mask.width;
+  c.height = mask.height;
+  c.getContext('2d')!.putImageData(new ImageData(maskToRGBA(mask, [0, 0, 0, 255]) as Uint8ClampedArray<ArrayBuffer>, mask.width, mask.height), 0, 0);
+  return c.toDataURL('image/png');
+}
 
 interface Props {
   photos: Photo[];
@@ -6,9 +22,11 @@ interface Props {
   selected: string | null;
   neighbors: Map<string, number>;
   onSelect: (id: string | null) => void;
+  underlay?: Underlay | null;
 }
 
-export function LayoutPreview({ photos, connections, selected, neighbors, onSelect }: Props) {
+export function LayoutPreview({ photos, connections, selected, neighbors, onSelect, underlay }: Props) {
+  const url = useMemo(() => (underlay ? maskDataUrl(underlay.mask) : null), [underlay?.mask]);
   const box = (p: Photo) => {
     const w = p.aspect >= 1 ? NODE_SIZE : NODE_SIZE * p.aspect;
     const h = p.aspect >= 1 ? NODE_SIZE / p.aspect : NODE_SIZE;
@@ -19,6 +37,12 @@ export function LayoutPreview({ photos, connections, selected, neighbors, onSele
     const { w, h } = box(p);
     x0 = Math.min(x0, p.x - w / 2); x1 = Math.max(x1, p.x + w / 2);
     y0 = Math.min(y0, p.y - h / 2); y1 = Math.max(y1, p.y + h / 2);
+  }
+  let ux = 0, uy = 0, uw = 0, uh = 0;
+  if (underlay) {
+    const { mask, frame } = underlay;
+    ux = frame.x0; uy = frame.y0; uw = mask.width * frame.scale; uh = mask.height * frame.scale;
+    x0 = Math.min(x0, ux); y0 = Math.min(y0, uy); x1 = Math.max(x1, ux + uw); y1 = Math.max(y1, uy + uh);
   }
   const pad = NODE_SIZE * 0.3;
   const byId = new Map(photos.map((p) => [p.id, p]));
@@ -31,6 +55,9 @@ export function LayoutPreview({ photos, connections, selected, neighbors, onSele
         role="img"
         aria-label="Map of the photo layout"
       >
+        {url && (
+          <image className="underlay" href={url} x={ux} y={uy} width={uw} height={uh} opacity={0.1} preserveAspectRatio="none" />
+        )}
         {connections.map((c) => {
           const a = byId.get(c.source)!, b = byId.get(c.target)!;
           const hot = selected && (c.source === selected || c.target === selected);
