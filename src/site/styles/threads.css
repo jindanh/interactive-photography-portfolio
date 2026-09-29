@@ -82,9 +82,11 @@
   pointer-events: none;
   opacity: 0;
   transition: opacity 200ms ease;
-  z-index: 5;
+  z-index: 9;
 }
 
+body:has(.detail:focus-visible) .kbd-hint,
+body:has(.detail :focus-visible) .kbd-hint,
 body:has(.photo-node:focus-visible) .kbd-hint {
   opacity: 1;
 }
