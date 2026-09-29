@@ -1,0 +1,25 @@
+/* Photo <-> color-card abstraction, driven by --zoom-rel (set on .visual-canvas).
+   Opacity is driven continuously by the variable: no transitions here. */
+.photo-node .face-card {
+  display: flex;
+  flex-direction: column; /* landscape/square: stacked horizontal stripes */
+  overflow: hidden;
+  opacity: clamp(0, calc((0.9 - var(--zoom-rel, 1)) / 0.2), 1);
+}
+.photo-node .face-card.is-portrait {
+  flex-direction: row; /* portrait: vertical bands */
+}
+.photo-node .face-card > i {
+  display: block;
+  flex-basis: 0;
+  flex-shrink: 0;
+  min-width: 0;
+  min-height: 0;
+}
+.photo-node .face-photo {
+  opacity: clamp(0, calc((var(--zoom-rel, 1) - 0.7) / 0.2), 1);
+}
+
+svg.connections .edges {
+  opacity: clamp(0, calc((var(--zoom-rel, 1) - 0.65) / 0.25), 1);
+}

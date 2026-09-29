@@ -1,0 +1,36 @@
+:root {
+  color-scheme: light dark;
+  --bg: #F3F0E8;
+  --ink: #1c1b19;
+  --ink-muted: rgba(28, 27, 25, 0.55);
+  --line: rgba(28, 27, 25, 0.12);
+  --font: ui-sans-serif, -apple-system, "SF Pro Text", "Helvetica Neue", "Segoe UI", Roboto, sans-serif;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #111110;
+    --ink: #ece8de;
+    --ink-muted: rgba(236, 232, 222, 0.55);
+    --line: rgba(236, 232, 222, 0.12);
+  }
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font);
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+* {
+  box-sizing: border-box;
+}
