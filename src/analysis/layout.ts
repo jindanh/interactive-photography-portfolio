@@ -3,8 +3,54 @@ import { hexToLab, labHueChroma } from './color';
 import type { PhotoBase } from './similarity';
 
 const ITERATIONS = 300;
-const GAP = 0.25 * NODE_SIZE;
+/** Clear gap between node boxes (overlapCount hard-codes this). */
+export const LAYOUT_GAP = 0.25 * NODE_SIZE;
+const GAP = LAYOUT_GAP;
 const SPRING_LENGTH = 1.45 * NODE_SIZE;
+
+/** World size of a node's box (long edge = NODE_SIZE). */
+export function nodeBox(p: Pick<PhotoBase, 'aspect'>): { w: number; h: number } {
+  return {
+    w: p.aspect >= 1 ? NODE_SIZE : NODE_SIZE * p.aspect,
+    h: p.aspect >= 1 ? NODE_SIZE / p.aspect : NODE_SIZE,
+  };
+}
+
+/**
+ * ONE pass of pairwise box separation, in place. Returns the number of pairs
+ * with min(ox, oy) > 0.5 when visited (used only for termination).
+ */
+export function collidePass(px: Float64Array, py: Float64Array, w: ArrayLike<number>, h: ArrayLike<number>, gap: number): number {
+  const n = px.length;
+  let moved = 0;
+  for (let i = 0; i < n; i++)
+    for (let j = i + 1; j < n; j++) {
+      const dx = px[j] - px[i], dy = py[j] - py[i];
+      const ox = (w[i] + w[j]) / 2 + gap - Math.abs(dx);
+      const oy = (h[i] + h[j]) / 2 + gap - Math.abs(dy);
+      if (ox <= 0 || oy <= 0) continue;
+      if (Math.min(ox, oy) > 0.5) moved++;
+      // separate along the axis of least overlap
+      if (ox < oy) {
+        const s = (dx === 0 ? (i < j ? -1 : 1) : Math.sign(dx)) * (ox / 2);
+        px[i] -= s; px[j] += s;
+      } else {
+        const s = (dy === 0 ? (i < j ? -1 : 1) : Math.sign(dy)) * (oy / 2);
+        py[i] -= s; py[j] += s;
+      }
+    }
+  return moved;
+}
+
+/** Calls collidePass until it returns 0 or maxPasses is reached; returns passes run. */
+export function resolveCollisions(px: Float64Array, py: Float64Array, w: ArrayLike<number>, h: ArrayLike<number>, gap: number, maxPasses: number): number {
+  let passes = 0;
+  while (passes < maxPasses) {
+    passes++;
+    if (collidePass(px, py, w, h, gap) === 0) break;
+  }
+  return passes;
+}
 
 /**
  * Deterministic color-seeded layout (no Math.random).
@@ -45,24 +91,6 @@ export function computeLayout(photos: PhotoBase[], connections: Connection[]): M
     if (a !== undefined && b !== undefined) links.push([a, b, 0.5 + 0.5 * c.strength]);
   }
 
-  const collide = () => {
-    for (let i = 0; i < n; i++)
-      for (let j = i + 1; j < n; j++) {
-        const dx = px[j] - px[i], dy = py[j] - py[i];
-        const ox = (w[i] + w[j]) / 2 + GAP - Math.abs(dx);
-        const oy = (h[i] + h[j]) / 2 + GAP - Math.abs(dy);
-        if (ox <= 0 || oy <= 0) continue;
-        // separate along the axis of least overlap
-        if (ox < oy) {
-          const s = (dx === 0 ? (i < j ? -1 : 1) : Math.sign(dx)) * (ox / 2);
-          px[i] -= s; px[j] += s;
-        } else {
-          const s = (dy === 0 ? (i < j ? -1 : 1) : Math.sign(dy)) * (oy / 2);
-          py[i] -= s; py[j] += s;
-        }
-      }
-  };
-
   for (let it = 0; it < ITERATIONS; it++) {
     const cooling = 1 - it / ITERATIONS;
     const step = 0.06 + 0.14 * cooling;
@@ -77,9 +105,9 @@ export function computeLayout(photos: PhotoBase[], connections: Connection[]): M
       px[i] *= 1 - 0.004;
       py[i] *= 1 - 0.004;
     }
-    collide();
+    collidePass(px, py, w, h, GAP);
   }
-  for (let extra = 0; extra < 60; extra++) collide();
+  for (let extra = 0; extra < 60; extra++) collidePass(px, py, w, h, GAP);
 
   let cx = 0, cy = 0;
   for (let i = 0; i < n; i++) { cx += px[i]; cy += py[i]; }
