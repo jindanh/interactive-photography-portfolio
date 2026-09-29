@@ -71,7 +71,7 @@ Short notes for a future developer. Product intent lives in `visual-threads-plan
 - Tall shapes cost first-view zoom (flower about -47%, umbrella about -40% versus Organic).
 - The flower is the weakest shape at 45 photos: five petals read best with thumbnails and no connection lines.
 - `-lg` images are at most 1800 px (`LG_EDGE`) and look slightly soft on 2x screens.
-- Everything in `public/` ships in `dist/`, so remove test or example folders before publishing.
+- Everything in `public/` ships in `dist/`, so remove test or example folders before publishing. In particular, the owner has a local `public/photos-examples/` folder (about 1.8 MB) that would be included in `dist/`; remove it or move it out of `public/` before publishing.
 - Shapes assume roughly 30-100 photos.
 
 ## Backlog / ideas not done

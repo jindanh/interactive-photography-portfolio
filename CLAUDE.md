@@ -62,6 +62,10 @@ Use Chrome. (Safari may not be able to save WebP images, and Photo Prep will tel
 8. Check the site (`npm run dev`, then open http://localhost:5173).
 9. Commit again (the new files in `public/photos/` and `src/data/`).
 
+**Before you commit your photos (steps 6 and 9):** while a pull request from `feat/visual-threads` is open, anything you commit on that branch goes into that pull request. If you don't want your real photos in the pull request (or visible on GitHub), don't commit them on that branch. Wait until the pull request has been merged, switch to `main` (`git switch main && git pull`), and commit the photos there. Your uncommitted photos come along when you switch.
+
+Don't run `git stash -u`, `git clean` or `git restore .` while your photos are uncommitted, because they can delete or revert them.
+
 Good to know:
 - When you add photos, the whole arrangement is recalculated, so existing photos may move and some connections may change. Photo ids and files stay the same.
 - **Connections per photo (important).** Changing the "Connections per photo" slider changes the connections of *all* photos. When you pick both `photos.json` and `connections.json` (step 2), Prep always sets the slider to match your existing data and shows a note saying so. If you pick only `photos.json`, Prep warns that connections weren't loaded. Prep also remembers the last slider value in this browser.
