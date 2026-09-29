@@ -13,7 +13,7 @@ import { DropZone } from './DropZone';
 import { LayoutPreview } from './LayoutPreview';
 import { PhotoList } from './PhotoList';
 import { maskFromFile, ShapePicker, SHAPE_NAMES } from './ShapePicker';
-import { loadShape, saveShape, type ShapeChoice } from './shapeStorage';
+import { DEFAULT_K, loadK, loadOutline, loadShape, saveK, saveOutline, saveShape, type ShapeChoice } from './shapeStorage';
 
 function invertMask(m: Mask): Mask {
   return { width: m.width, height: m.height, data: m.data.map((v) => 1 - v) };
@@ -43,7 +43,17 @@ export function PrepApp() {
   const [entries, setEntries] = useState<Entry[]>([]);
   const entriesRef = useRef<Entry[]>([]);
   const queue = useRef<Promise<void>>(Promise.resolve());
-  const [k, setK] = useState(3);
+  const kSaved = useRef(loadK());
+  const [k, setK] = useState(kSaved.current ?? DEFAULT_K);
+  const [inferredK, setInferredK] = useState<number | null>(null);
+  const changeK = (v: number) => {
+    kSaved.current = v;
+    saveK(v);
+    setInferredK(null);
+    setK(v);
+  };
+  const [outline, setOutline] = useState(loadOutline);
+  useEffect(() => saveOutline(outline), [outline]);
   const [webpOk, setWebpOk] = useState<boolean | null>(null);
   useEffect(() => {
     void canEncodeWebp().then(setWebpOk);
@@ -138,6 +148,7 @@ export function PrepApp() {
     async (files: File[]) => {
       const failed: string[] = [];
       let loaded: Entry[] = [];
+      let connCount: number | null = null;
       for (const f of files) {
         try {
           const data = JSON.parse(await f.text());
@@ -149,7 +160,8 @@ export function PrepApp() {
               loaded.push({ base, existing: true, thumb: import.meta.env.BASE_URL + p.src.sm });
             }
           }
-          // connections.json needs no reading: connections are recomputed from the palettes.
+          // connections.json is only used to match the connection count; connections are recomputed from the palettes.
+          if (data.length && data[0].source && data[0].target) connCount = data.length;
         } catch (e) {
           failed.push(`${f.name}: ${e instanceof Error ? e.message : 'not valid JSON'}`);
         }
@@ -170,6 +182,18 @@ export function PrepApp() {
         return { ...e, base: { ...e.base, id, src: { sm: `photos/${id}-sm.webp`, lg: `photos/${id}-lg.webp` } } };
       });
       commit([...reided, ...loaded]);
+      if (connCount !== null && loaded.length > 0 && kSaved.current === null) {
+        const bases = loaded.map((e) => e.base);
+        let best = DEFAULT_K, bestDiff = Infinity;
+        for (let c = 2; c <= 5; c++) {
+          const diff = Math.abs(buildConnections(bases, c).length - connCount);
+          if (diff < bestDiff) { best = c; bestDiff = diff; }
+        }
+        kSaved.current = best;
+        saveK(best);
+        setK(best);
+        setInferredK(best);
+      }
       setSelected(null);
       setProblems(failed);
     },
@@ -253,6 +277,7 @@ export function PrepApp() {
           <input
             type="file"
             accept=".json,application/json"
+            multiple
             hidden
             onChange={(e) => {
               loadExisting([...(e.target.files ?? [])]);
@@ -262,10 +287,11 @@ export function PrepApp() {
         </label>
         <label className="slider">
           Connections per photo: <b>{k}</b>
-          <input type="range" min={2} max={5} step={1} value={k} onChange={(e) => setK(Number(e.target.value))} />
+          <input type="range" min={2} max={5} step={1} value={k} onChange={(e) => changeK(Number(e.target.value))} />
         </label>
       </div>
-      <p className="hint">Pick src/data/photos.json.</p>
+      <p className="hint">Pick src/data/photos.json (and connections.json too, if you want the connection count matched automatically).</p>
+      {inferredK !== null && <p className="note" role="status">Connections per photo set to {inferredK} to match your existing data.</p>}
 
       <ShapePicker
         shape={shape}
@@ -344,8 +370,13 @@ export function PrepApp() {
                 selected={selected}
                 neighbors={neighbors}
                 onSelect={setSelected}
-                underlay={usable?.frame ? { mask: usable.mask, frame: usable.frame } : null}
+                underlay={outline && usable?.frame ? { mask: usable.mask, frame: usable.frame } : null}
               />
+              {shape !== 'organic' && (
+                <label className="outline-toggle">
+                  <input type="checkbox" checked={outline} onChange={(e) => setOutline(e.target.checked)} /> Show outline
+                </label>
+              )}
               <p className="stats" role="status">
                 {pending
                   ? 'Shaping the layout…'

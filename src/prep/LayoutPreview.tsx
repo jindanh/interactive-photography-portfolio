@@ -56,7 +56,7 @@ export function LayoutPreview({ photos, connections, selected, neighbors, onSele
         aria-label="Map of the photo layout"
       >
         {url && (
-          <image className="underlay" href={url} x={ux} y={uy} width={uw} height={uh} opacity={0.1} preserveAspectRatio="none" />
+          <image className="underlay" href={url} x={ux} y={uy} width={uw} height={uh} opacity={0.06} preserveAspectRatio="none" />
         )}
         {connections.map((c) => {
           const a = byId.get(c.source)!, b = byId.get(c.target)!;
