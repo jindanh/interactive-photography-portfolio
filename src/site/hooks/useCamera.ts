@@ -28,7 +28,6 @@ export interface CameraApi {
   /** Destination of the running tween, else the current camera. */
   getTarget: () => Camera;
   /** Scale that fitTo() with no args produces for the current viewport. */
-  getHomeScale: () => number;
 }
 
 interface Internals {
@@ -183,7 +182,7 @@ export function useCamera(
       return { x: size.current.w / 2 + (wx - x) * scale, y: size.current.h / 2 + (wy - y) * scale };
     };
 
-    return { animateTo, getCamera: () => ({ ...cam.current }), setCamera: set, worldToScreen, screenToWorld, fitTo, getHomeScale: homeScale, getTarget: () => ({ ...(tweenTarget ?? cam.current) }) };
+    return { animateTo, getCamera: () => ({ ...cam.current }), setCamera: set, worldToScreen, screenToWorld, fitTo, getTarget: () => ({ ...(tweenTarget ?? cam.current) }) };
   }, [rootRef, worldRef]);
 
   useEffect(() => {

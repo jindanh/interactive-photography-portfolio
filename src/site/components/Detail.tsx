@@ -152,7 +152,6 @@ export function Detail({ photo, neighbors, getNodeRect, prepareReturn, onFollow,
       anims.current = [];
       openAnims.current = [];
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // After a follow: drop the outgoing layer once faded, and re-announce the label.
