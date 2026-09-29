@@ -44,3 +44,43 @@ export function saveShape(s: SavedShape): void {
     // storage unavailable or full: the choice just isn't remembered
   }
 }
+
+export const K_KEY = 'visual-threads:prep-k:v1';
+export const OUTLINE_KEY = 'visual-threads:prep-outline:v1';
+export const DEFAULT_K = 3;
+
+/** The remembered connections-per-photo, or null when nothing valid is saved (an integer 2-5 is valid). */
+export function loadK(): number | null {
+  try {
+    const raw = localStorage.getItem(K_KEY);
+    if (raw === null || !/^[2-5]$/.test(raw)) return null;
+    return Number(raw);
+  } catch {
+    return null;
+  }
+}
+
+export function saveK(k: number): void {
+  try {
+    localStorage.setItem(K_KEY, String(k));
+  } catch {
+    // not remembered
+  }
+}
+
+/** Whether the shape outline underlay is shown in the preview (default on). */
+export function loadOutline(): boolean {
+  try {
+    return localStorage.getItem(OUTLINE_KEY) !== '0';
+  } catch {
+    return true;
+  }
+}
+
+export function saveOutline(on: boolean): void {
+  try {
+    localStorage.setItem(OUTLINE_KEY, on ? '1' : '0');
+  } catch {
+    // not remembered
+  }
+}
