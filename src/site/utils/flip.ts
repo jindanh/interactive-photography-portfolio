@@ -42,6 +42,17 @@ export function flip(el: HTMLElement, from: Rect, to: Rect, opts: { duration?: n
   return el.animate(frames, { duration: opts.duration ?? FLIP_MS, easing: FLIP_EASE, fill: 'both' });
 }
 
+/** Like `flip`, but between two arbitrary rects: `el` is laid out at `layout`; animates from `from` to `to`. */
+export function flipBetween(el: HTMLElement, layout: Rect, from: Rect, to: Rect, opts: { duration?: number } = {}): Animation {
+  el.style.transformOrigin = '0 0';
+  const tf = (r: Rect) => `translate(${r.x - layout.x}px, ${r.y - layout.y}px) scale(${r.w / layout.w}, ${r.h / layout.h})`;
+  return el.animate([{ transform: tf(from) }, { transform: tf(to) }], {
+    duration: opts.duration ?? FLIP_MS,
+    easing: FLIP_EASE,
+    fill: 'both',
+  });
+}
+
 export function prefersReducedMotion(): boolean {
   return typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
 }

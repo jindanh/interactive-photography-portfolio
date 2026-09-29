@@ -62,6 +62,11 @@
   opacity: 1;
 }
 
+/* The closer hint waits for "Follow the visual thread." to fade out; hiding stays instant-start. */
+.thread-hint.is-closer.is-visible {
+  transition-delay: 700ms;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .connections .edge {
     animation-duration: 200ms;

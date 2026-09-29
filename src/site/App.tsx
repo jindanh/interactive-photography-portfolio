@@ -311,7 +311,7 @@ export function App() {
       <div className={`thread-hint${introDone && !hintSeen ? ' is-visible' : ''}`} aria-hidden="true">
         Follow the visual thread.
       </div>
-      <div className={`thread-hint${closerVisible ? ' is-visible' : ''}`} aria-hidden="true">
+      <div className={`thread-hint is-closer${closerVisible ? ' is-visible' : ''}`} aria-hidden="true">
         {coarse ? 'Tap again to look closer.' : 'Click again to look closer.'}
       </div>
       <p id="kbd-help" className="kbd-hint">
