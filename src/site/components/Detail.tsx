@@ -1,7 +1,7 @@
 import { memo, useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import type { Neighbor } from '../../data';
 import type { Photo } from '../../types';
-import { FLIP_MS, fitRect, flip, prefersReducedMotion } from '../utils/flip';
+import { FLIP_MS, fitRect, flip, flipBetween, prefersReducedMotion } from '../utils/flip';
 import type { Rect } from '../utils/flip';
 import { photoLabel } from '../utils/label';
 import '../styles/detail.css';
@@ -29,12 +29,17 @@ function stageRect(vw: number, vh: number): Rect {
   const bar = 16;
   if (vw <= 600) {
     const top = 48;
-    const bottom = 16 + 56 + 7 + 20;
+    const bottom = 16 + 64 + 7 + 20;
     return { x: 16, y: top, w: vw - 32, h: Math.max(60, vh - top - bottom - bar) };
   }
   const pad = 56;
-  const right = pad + 72 + 32;
+  const right = pad + 96 + 32;
   return { x: pad, y: pad, w: Math.max(60, vw - pad - right), h: Math.max(60, vh - pad * 2 - bar) };
+}
+
+/** Thumbnail box (matches --thumb in detail.css). */
+function thumbPx(vw: number): number {
+  return vw > 900 ? 96 : vw <= 600 ? 64 : 72;
 }
 
 interface LayerProps {
@@ -75,9 +80,13 @@ export function Detail({ photo, neighbors, getNodeRect, prepareReturn, onFollow,
   const closeRef = useRef<HTMLButtonElement>(null);
   const [vp, setVp] = useState(() => ({ w: window.innerWidth, h: window.innerHeight }));
   // Layers: the last is the current photo; earlier ones are cross-fading out after a follow.
-  const [layers, setLayers] = useState<{ photo: Photo; role: 'first' | 'entering' }[]>(() => [{ photo, role: 'first' }]);
+  // Each layer has its own key (the same photo can appear twice while a cross-fade is still running).
+  const seq = useRef(0);
+  const [layers, setLayers] = useState<{ photo: Photo; role: 'first' | 'entering'; key: number }[]>(() => [
+    { photo, role: 'first', key: ++seq.current },
+  ]);
   if (layers[layers.length - 1].photo.id !== photo.id) {
-    setLayers([...layers.slice(-2), { photo, role: 'entering' }]);
+    setLayers([...layers.slice(-2), { photo, role: 'entering', key: ++seq.current }]);
   }
 
   const phase = useRef<'opening' | 'open' | 'closing'>('opening');
@@ -85,6 +94,7 @@ export function Detail({ photo, neighbors, getNodeRect, prepareReturn, onFollow,
   const anims = useRef<Animation[]>([]);
   const openAnims = useRef<Animation[]>([]);
   const openId = useRef(photo.id);
+  const openFrom = useRef<Rect | null>(null);
   const photoRef = useRef(photo);
   photoRef.current = photo;
   const cb = useRef({ getNodeRect, prepareReturn, onClosed });
@@ -113,6 +123,7 @@ export function Detail({ photo, neighbors, getNodeRect, prepareReturn, onFollow,
     const el = currentLayerEl();
     const to = fitRect(photoRef.current.aspect, stageRect(window.innerWidth, window.innerHeight));
     const from = cb.current.getNodeRect(openId.current);
+    openFrom.current = from;
     const reduced = prefersReducedMotion();
     let main: Animation | null;
     if (reduced || !from || !el) {
@@ -174,8 +185,11 @@ export function Detail({ photo, neighbors, getNodeRect, prepareReturn, onFollow,
     root.classList.remove('is-opening');
     const el = currentLayerEl();
     let main: Animation | null;
-    if (wasOpening && openAnims.current.length && id === openId.current) {
-      // Reverse the opening in flight.
+    const from = openFrom.current;
+    const near = (a: Rect, b: Rect) =>
+      Math.abs(a.x - b.x) <= 2 && Math.abs(a.y - b.y) <= 2 && Math.abs(a.w - b.w) <= 2 && Math.abs(a.h - b.h) <= 2;
+    if (wasOpening && openAnims.current.length && id === openId.current && from && end && near(from, end)) {
+      // Reverse the opening in flight (the node is where the opening started).
       openAnims.current.forEach((a) => a.reverse());
       main = openAnims.current[0];
     } else if (reduced || !end || !el) {
@@ -184,12 +198,14 @@ export function Detail({ photo, neighbors, getNodeRect, prepareReturn, onFollow,
       fade(root.querySelector('.detail-strip'), 1, 0, ms);
       fade(closeRef.current, 1, 0, ms);
     } else {
+      const to = fitRect(photoRef.current.aspect, stageRect(window.innerWidth, window.innerHeight));
+      // If the opening is still running, start from where the image is now (the node has moved since).
+      const cur = wasOpening ? el.getBoundingClientRect() : null;
       openAnims.current.forEach((a) => a.cancel());
       main = track(
-        flip(el, end, fitRect(photoRef.current.aspect, stageRect(window.innerWidth, window.innerHeight)), {
-          duration: ms,
-          reverse: true,
-        }),
+        cur
+          ? flipBetween(el, to, { x: cur.left, y: cur.top, w: cur.width, h: cur.height }, end, { duration: ms })
+          : flip(el, end, to, { duration: ms, reverse: true }),
       );
       fade(veilRef.current, 1, 0, ms);
       chromeEls().forEach((c) => fade(c, 1, 0, Math.round(ms * 0.6)));
@@ -225,6 +241,9 @@ export function Detail({ photo, neighbors, getNodeRect, prepareReturn, onFollow,
   }, [close]);
 
   const stage = stageRect(vp.w, vp.h);
+  // Desktop: the strip sits just right of the image instead of at the far edge.
+  const stripLeft =
+    vp.w > 600 ? Math.min(vp.w - 32 - thumbPx(vp.w), fitRect(photo.aspect, stage).x + fitRect(photo.aspect, stage).w + 48) : undefined;
 
   return (
     <div
@@ -242,16 +261,22 @@ export function Detail({ photo, neighbors, getNodeRect, prepareReturn, onFollow,
     >
       <div className="detail-veil" ref={veilRef} />
       {layers.map((l, i) => (
-        <Layer key={l.photo.id} photo={l.photo} rect={fitRect(l.photo.aspect, stage)} role={l.role} current={i === layers.length - 1} />
+        <Layer key={l.key} photo={l.photo} rect={fitRect(l.photo.aspect, stage)} role={l.role} current={i === layers.length - 1} />
       ))}
-      <nav className="detail-strip" aria-label="Connected photographs">
+      <nav
+        className="detail-strip"
+        aria-label="Connected photographs"
+        style={stripLeft === undefined ? undefined : { left: stripLeft, right: 'auto' }}
+      >
         {neighbors.map((n) => (
           <button
             key={n.photo.id}
             type="button"
             className="detail-thumb"
             aria-label={`Follow the thread to ${photoLabel(n.photo)}`}
-            onClick={() => onFollow(n.photo.id)}
+            onClick={() => {
+              if (phase.current !== 'closing') onFollow(n.photo.id);
+            }}
           >
             <img
               src={BASE + n.photo.src.sm}
