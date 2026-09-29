@@ -46,6 +46,7 @@ export function PrepApp() {
   const kSaved = useRef(loadK());
   const [k, setK] = useState(kSaved.current ?? DEFAULT_K);
   const [inferredK, setInferredK] = useState<number | null>(null);
+  const [connsMissing, setConnsMissing] = useState(false);
   const changeK = (v: number) => {
     kSaved.current = v;
     saveK(v);
@@ -182,7 +183,8 @@ export function PrepApp() {
         return { ...e, base: { ...e.base, id, src: { sm: `photos/${id}-sm.webp`, lg: `photos/${id}-lg.webp` } } };
       });
       commit([...reided, ...loaded]);
-      if (connCount !== null && loaded.length > 0 && kSaved.current === null) {
+      // Loading photos.json and connections.json together always sets the slider to match the file, even if a value is saved.
+      if (connCount !== null && loaded.length > 0) {
         const bases = loaded.map((e) => e.base);
         let best = DEFAULT_K, bestDiff = Infinity;
         for (let c = 2; c <= 5; c++) {
@@ -193,6 +195,10 @@ export function PrepApp() {
         saveK(best);
         setK(best);
         setInferredK(best);
+        setConnsMissing(false);
+      } else if (loaded.length > 0) {
+        setInferredK(null);
+        setConnsMissing(true);
       }
       setSelected(null);
       setProblems(failed);
@@ -290,7 +296,8 @@ export function PrepApp() {
           <input type="range" min={2} max={5} step={1} value={k} onChange={(e) => changeK(Number(e.target.value))} />
         </label>
       </div>
-      <p className="hint">Pick src/data/photos.json (and connections.json too, if you want the connection count matched automatically).</p>
+      <p className="hint">Pick src/data/photos.json and src/data/connections.json together (hold Cmd to select both) so the connection count matches your existing data.</p>
+      {connsMissing && <p className="note" role="status">Connections weren't loaded, so the connections per photo is {k}. If your existing data used a different number, load connections.json too.</p>}
       {inferredK !== null && <p className="note" role="status">Connections per photo set to {inferredK} to match your existing data.</p>}
 
       <ShapePicker
