@@ -3,13 +3,21 @@ import type { Connection, Photo } from '../types';
 import { brightnessOf, extractPalette, saturationOf } from '../analysis/color';
 import { buildZip, serializeConnections, serializePhotos } from '../analysis/exportZip';
 import { nextId } from '../analysis/ids';
-import { computeLayout } from '../analysis/layout';
+import { computeLayout, overlapCount } from '../analysis/layout';
+import { computeShapedLayout, type ShapedLayoutResult } from '../analysis/shapedLayout';
+import { shapeMask, type Mask } from '../analysis/shapes';
 import { generatePlaceholders } from '../analysis/placeholders';
 import { canEncodeWebp, resizePhoto, WEBP_MSG } from '../analysis/resize';
 import { buildConnections, degrees, validateDataset, type PhotoBase } from '../analysis/similarity';
 import { DropZone } from './DropZone';
 import { LayoutPreview } from './LayoutPreview';
 import { PhotoList } from './PhotoList';
+import { maskFromFile, ShapePicker, SHAPE_NAMES } from './ShapePicker';
+import { loadShape, saveShape, type ShapeChoice } from './shapeStorage';
+
+function invertMask(m: Mask): Mask {
+  return { width: m.width, height: m.height, data: m.data.map((v) => 1 - v) };
+}
 
 interface Entry {
   base: PhotoBase;
@@ -45,6 +53,25 @@ export function PrepApp() {
   const [selected, setSelected] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [orphans, setOrphans] = useState<string[]>([]);
+  const [saved] = useState(loadShape);
+  const [shape, setShape] = useState<ShapeChoice>(saved.shape);
+  const [invert, setInvert] = useState(saved.invert);
+  const [customRaw, setCustomRaw] = useState<Mask | null>(saved.custom);
+  const [shapeError, setShapeError] = useState<string | null>(null);
+  useEffect(() => saveShape({ shape, invert, custom: customRaw }), [shape, invert, customRaw]);
+  // Same object for the same (image, invert), so the analysis caches keep hitting.
+  const customMask = useMemo(() => (customRaw ? (invert ? invertMask(customRaw) : customRaw) : null), [customRaw, invert]);
+  const mask = shape === 'custom' ? customMask : shape === 'organic' ? null : shapeMask(shape);
+
+  const pickCustom = useCallback(async (f: File) => {
+    try {
+      setCustomRaw(await maskFromFile(f));
+      setShape('custom');
+      setShapeError(null);
+    } catch {
+      setShapeError(`${f.name}: could not be read as an image`);
+    }
+  }, []);
 
   const commit = useCallback((next: Entry[]) => {
     entriesRef.current = next;
@@ -160,13 +187,35 @@ export function PrepApp() {
     [commit],
   );
 
-  const { photos, connections, errors } = useMemo(() => {
+  const organic = useMemo(() => {
     const bases = entries.map((e) => e.base);
     const conns: Connection[] = buildConnections(bases, k);
     const pos = computeLayout(bases, conns);
-    const ps: Photo[] = bases.map((b) => ({ ...b, ...pos.get(b.id)! }));
-    return { photos: ps, connections: conns, errors: entries.length ? validateDataset(ps, conns) : [] };
+    return { bases, conns, pos, overlaps: overlapCount(bases, pos) };
   }, [entries, k]);
+
+  // Shaped layouts are never computed while photos are still being added (that would run once per photo).
+  // While busy the Organic result is shown; the shaped one is computed when busy ends, once per (entries, k, shape).
+  const shapedCache = useRef<{ organic: typeof organic; mask: Mask; result: ShapedLayoutResult } | null>(null);
+  const shaped = useMemo<ShapedLayoutResult | null>(() => {
+    if (!mask || busy || organic.bases.length === 0) return null;
+    const c = shapedCache.current;
+    if (c && c.organic === organic && c.mask === mask) return c.result;
+    const result = computeShapedLayout(organic.bases, organic.conns, mask);
+    shapedCache.current = { organic, mask, result };
+    return result;
+  }, [organic, mask, busy]);
+
+  const { photos, connections, errors } = useMemo(() => {
+    const pos = shaped?.positions ?? organic.pos;
+    const ps: Photo[] = organic.bases.map((b) => ({ ...b, ...pos.get(b.id)! }));
+    return { photos: ps, connections: organic.conns, errors: entries.length ? validateDataset(ps, organic.conns) : [] };
+  }, [entries, organic, shaped]);
+  const usable = shaped && !shaped.fallback ? shaped : null;
+  const layoutName = shaped?.fallback
+    ? `Organic (${SHAPE_NAMES[shape].toLowerCase()} unusable)`
+    : SHAPE_NAMES[shape];
+  const pending = shape !== 'organic' && !shaped && photos.length > 0;
 
   const deg = useMemo(() => degrees(photos, connections), [photos, connections]);
   const neighbors = useMemo(() => {
@@ -218,6 +267,16 @@ export function PrepApp() {
       </div>
       <p className="hint">Pick src/data/photos.json.</p>
 
+      <ShapePicker
+        shape={shape}
+        invert={invert}
+        customMask={customMask}
+        onShape={(s) => { setShape(s); setShapeError(null); }}
+        onCustomFile={pickCustom}
+        onInvert={setInvert}
+        error={shapeError}
+      />
+
       {progress && (
         <p className="progress" role="status">
           {progress.total ? `Analyzing ${Math.min(progress.done + 1, progress.total)} / ${progress.total}…` : 'Drawing placeholders…'}
@@ -247,10 +306,14 @@ export function PrepApp() {
             >
               connections.json
             </button>
+            <span className="layout-name">Layout: {layoutName}</span>
             <span className="count">
               {photos.length} photos, {connections.length} connections{newCount ? `, ${newCount} new` : ''}
             </span>
           </div>
+          {shaped?.fallback && (
+            <p className="errors" role="alert">This image doesn't give a usable shape. Try a bold, filled silhouette.</p>
+          )}
           {hasExisting && (
             <p className="note">Existing images stay in public/photos. The zip only contains new images.</p>
           )}
@@ -274,7 +337,23 @@ export function PrepApp() {
               onSelect={(id) => setSelected((s) => (s === id ? null : id))}
               onRemove={remove}
             />
-            <LayoutPreview photos={photos} connections={connections} selected={selected} neighbors={neighbors} onSelect={setSelected} />
+            <div className="preview-col">
+              <LayoutPreview
+                photos={photos}
+                connections={connections}
+                selected={selected}
+                neighbors={neighbors}
+                onSelect={setSelected}
+                underlay={usable?.frame ? { mask: usable.mask, frame: usable.frame } : null}
+              />
+              <p className="stats" role="status">
+                {pending
+                  ? 'Shaping the layout…'
+                  : usable
+                    ? `Avg connection: ${usable.ratio.toFixed(2)}× Organic · Overlaps: ${usable.stats.overlaps}`
+                    : `Overlaps: ${organic.overlaps}`}
+              </p>
+            </div>
           </div>
         </>
       )}
